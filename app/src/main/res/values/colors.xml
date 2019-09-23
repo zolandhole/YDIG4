@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <color name="colorPrimary">#011970</color>
+    <color name="colorPrimaryDark">#122952</color>
+    <color name="colorAccent">#1230A2</color>
+    <color name="putihKotor">#EFF0d3</color>
+    <color name="orangeTulisan">#E9AB00</color>
+    <color name="putih">#E9EBEE</color>
+    <color name="white">#FFFFFF</color>
+    <color name="darkGrey">#4B4F56</color>
+    <color name="black">#000</color>
+    <color name="facebook">#3B5998</color>
+    <color name="merahmarun">#8E1600</color>
+    <color name="grey">#bfbfbf</color>
+</resources>

@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">YDIG4</string>
+    <string name="facebook_app_id">428236751145130</string>
+    <string name="fb_login_protocol_scheme">fb428236751145130</string>
+    <string name="policy">kami menjamin semua detail yang Anda kirimkan akan dirahasiakan dan tidak akan dibagikan dengan pihak lain untuk tujuan apa pun</string>
+    <string name="memulai">Memulai</string>
+    <string name="bergabung_dengan_dialog_islam_garuda">Bergabung dengan Dialog Islam Garuda</string>
+    <string name="gunakan_aku_facebook">Gunakan Aku Facebook</string>
+    <string name="atau">atau</string>
+    <string name="gunakan_akun_google">Gunakan Akun Google</string>
+    <string name="radio_streaming">Radio Streaming</string>
+    <string name="dialog_islam_garuda">Dialog Islam Garuda</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="komentar_pertanyaan">Komentar / Pertanyaan</string>
+    <string name="judul_kajian">Judul Kajian</string>
+    <string name="pemateri">Pemateri</string>
+    <string name="stop">Stop</string>
+    <string name="play">Play</string>
+    <string name="streaming_status">Streaming Status</string>
+    <string name="koneksi_buruk">Koneksi buruk, sedang memuat Data …</string>
+    <string name="Mohon_tunggu">Mohon tunggu, sedang menghubungi server…</string>
+</resources>
