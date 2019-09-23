@@ -222,6 +222,7 @@ public class StreamingService extends Service implements
     @Override
     public IBinder onBind(Intent intent) {
         Log.e(TAG, "onBind: StreamingService " + intent);
+        sendBroadcast(new Intent("streamingError"));
         return null;
     }
 
