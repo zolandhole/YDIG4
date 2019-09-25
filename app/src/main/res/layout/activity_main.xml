@@ -170,7 +170,6 @@
                     app:civ_border_width="2dp"/>
 
                 <EditText
-                    android:textSize="12sp"
                     android:fontFamily="@font/robotolight"
                     android:id="@+id/streaming_edittext"
                     android:layout_weight="3"
@@ -191,6 +190,13 @@
                     android:layout_height="wrap_content"
                     tools:ignore="Autofill" />
 
+                <ProgressBar
+                    android:visibility="gone"
+                    android:id="@+id/progressbar_send"
+                    android:layout_marginStart="10dp"
+                    android:layout_gravity="center"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp" />
                 <Button
                     android:id="@+id/streaming_sendpesan"
                     android:layout_gravity="center"

@@ -26,7 +26,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -81,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL, ADSID, TOKENFCM;
     private DBHandler dbHandler;
     private Button buttonPlay, buttonStop, btn_send;
-    private ProgressBar progress_play;
+    private ProgressBar progress_play, progressbar_send;
     private TextView main_status_streaming;
     private FirebaseAuth mAuth;
     private int countError = 0;
@@ -160,6 +159,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             cv_pesanBaru.setVisibility(View.VISIBLE);
         }
+        progressbar_send.setVisibility(View.GONE);
+        btn_send.setVisibility(View.VISIBLE);
+        editTextPesan.setEnabled(true);
     }
 
 
@@ -380,6 +382,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         streaming_recyclerview = findViewById(R.id.streaming_recyclerview);
         btn_send = findViewById(R.id.streaming_sendpesan); btn_send.setOnClickListener(this);
+        progressbar_send = findViewById(R.id.progressbar_send);
         editTextPesan = findViewById(R.id.streaming_edittext);
         cv_pesanBaru = findViewById(R.id.cv_pesan_baru); cv_pesanBaru.setOnClickListener(this);
 
@@ -487,6 +490,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.streaming_sendpesan:
                 kirimPesan();
+
                 break;
             case R.id.cv_pesan_baru:
                 linearLayoutManager.scrollToPosition(0);
@@ -500,10 +504,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (!pesan.equals("")){
             kirimKeServer(pesan);
         }
-        editTextPesan.setText("");
     }
 
     private void kirimKeServer(String pesan) {
+        progressbar_send.setVisibility(View.VISIBLE);
+        btn_send.setVisibility(View.GONE);
+        editTextPesan.setEnabled(false);
         Date c = Calendar.getInstance().getTime();
         @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
         @SuppressLint("SimpleDateFormat") SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
@@ -522,6 +528,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onFailed(String result) {
                     Log.e(TAG, "onFailed: " + result);
+                    if (!result.contains("berhasil")){
+                        progressbar_send.setVisibility(View.GONE);
+                        btn_send.setVisibility(View.VISIBLE);
+                        editTextPesan.setEnabled(true);
+                        Toast.makeText(MainActivity.this, "Gagal Mengirim Pesan, Silahkan Coba lagi", Toast.LENGTH_SHORT).show();
+                    } else {
+                        editTextPesan.setText("");
+                        editTextPesan.setEnabled(true);
+                    }
                 }
 
                 @Override

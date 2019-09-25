@@ -1,25 +1,35 @@
 package com.surampaksakosoy.ydig4.services;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.surampaksakosoy.ydig4.R;
+import com.surampaksakosoy.ydig4.util.NotificationReceiver;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import static com.surampaksakosoy.ydig4.util.App.CHANNEL_1;
+
 public class EPCEEMService extends FirebaseMessagingService {
 
     private static final String TAG = "FirebaseService";
+    private NotificationManagerCompat notificationManagerCompat;
 
     @Override
     public void onCreate() {
-
+        notificationManagerCompat = NotificationManagerCompat.from(this);
     }
 
     @Override
@@ -64,9 +74,40 @@ public class EPCEEMService extends FirebaseMessagingService {
 //                MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
 //                myNotificationManager.showStreamingNotification(title,message);
 //            }
+            else {
+                String title = data.getString("title");
+                String message = data.getString("message");
+                showNotificationInfo(title, message);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "sendPushNotification: " + e);
         }
+    }
+
+    private void showNotificationInfo(String title, String message) {
+        RemoteViews collapsedView = new RemoteViews(getPackageName(),
+                R.layout.notification_collapsed);
+        RemoteViews expandedView = new RemoteViews(getPackageName(),
+                R.layout.notification_expanded);
+
+        Intent clickIntent = new Intent(this, NotificationReceiver.class);
+        PendingIntent clickPendingIntent = PendingIntent.getBroadcast(this,
+                0, clickIntent, 0);
+
+        collapsedView.setTextViewText(R.id.text_view_collapsed_1, title);
+        collapsedView.setTextViewText(R.id.text_view_collapsed_2, message);
+
+        expandedView.setImageViewResource(R.id.image_view_expanded, R.drawable.bgnotif);
+        expandedView.setOnClickPendingIntent(R.id.image_view_expanded, clickPendingIntent);
+
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_1)
+                .setSmallIcon(R.drawable.ic_ydig_notif)
+                .setCustomContentView(collapsedView)
+                .setCustomBigContentView(expandedView)
+                //.setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .build();
+
+        notificationManagerCompat.notify(1, notification);
     }
 }

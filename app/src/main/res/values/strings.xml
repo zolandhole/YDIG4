@@ -11,7 +11,7 @@
     <string name="radio_streaming">Radio Streaming</string>
     <string name="dialog_islam_garuda">Dialog Islam Garuda</string>
     <string name="sign_out">Sign Out</string>
-    <string name="komentar_pertanyaan">Komentar / Pertanyaan</string>
+    <string name="komentar_pertanyaan">Ketikan Pesan</string>
     <string name="judul_kajian">Judul Kajian</string>
     <string name="pemateri">Pemateri</string>
     <string name="stop">Stop</string>
@@ -20,7 +20,7 @@
     <string name="koneksi_buruk">Koneksi buruk, sedang memuat Data …</string>
     <string name="Mohon_tunggu">Mohon tunggu, sedang menghubungi server…</string>
     <string name="nama">nama</string>
-    <string name="jam">jam</string>
+    <string name="jam"> jam</string>
     <string name="pesan">pesan</string>
     <string name="pesan_baru">Pesan Baru</string>
 </resources>
