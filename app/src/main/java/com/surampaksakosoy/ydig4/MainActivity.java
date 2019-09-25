@@ -5,6 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -12,8 +15,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import java.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -21,8 +26,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -32,10 +39,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.surampaksakosoy.ydig4.adapters.AdapterStreaming;
+import com.surampaksakosoy.ydig4.models.ModelStreaming;
 import com.surampaksakosoy.ydig4.services.StreamingService;
 import com.surampaksakosoy.ydig4.util.DBHandler;
 import com.surampaksakosoy.ydig4.util.HandlerServer;
@@ -43,12 +56,16 @@ import com.surampaksakosoy.ydig4.util.PublicAddress;
 import com.surampaksakosoy.ydig4.util.VolleyCallback;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,15 +76,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String TAG = "MainActivity";
 
-    private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL;
+    private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL, ADSID, TOKENFCM;
     private DBHandler dbHandler;
-    private Button buttonPlay, buttonStop;
+    private Button buttonPlay, buttonStop, btn_send;
     private ProgressBar progress_play;
     private TextView main_status_streaming;
     private FirebaseAuth mAuth;
     private int countError = 0;
     private GoogleSignInClient mGoogleSignInClient;
     boolean doubleBackToExitPressedOnce = false;
+    private RecyclerView streaming_recyclerview;
+    private LinearLayoutManager linearLayoutManager;
+    private AdapterStreaming adapterStreaming;
+    private List<ModelStreaming> modelStreaming;
+    private EditText editTextPesan;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -111,10 +133,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     Log.e(TAG, "onReceive: " + countError);
                     break;
+                case "PESANBARU":
+                    ArrayList<String> dataPesan = intent.getStringArrayListExtra("DATANOTIF");
+                    pesanBaruDatang(dataPesan);
+                    break;
             }
 
         }
     };
+
+    private void pesanBaruDatang(ArrayList<String> dataPesan) {
+        ModelStreaming item = (new ModelStreaming(
+                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5)
+        ));
+        int insertIndex = 0;
+        modelStreaming.add(insertIndex, item);
+        adapterStreaming.notifyItemInserted(insertIndex);
+        linearLayoutManager.scrollToPosition(0);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         filter.addAction("mediastoped");
         filter.addAction("lemot");
         filter.addAction("streamingError");
+        filter.addAction("PESANBARU");
         registerReceiver(broadcastReceiver, filter);
 
         ID_LOGIN = cekApakahUserPernahLogin();
@@ -152,8 +190,127 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void lanjutkanKeLangkahBerikutnya() {
+        ADSID = "35" +
+                Build.BOARD.length()%10+ Build.BRAND.length()%10 +
+                Build.CPU_ABI.length()%10 + Build.DEVICE.length()%10 +
+                Build.DISPLAY.length()%10 + Build.HOST.length()%10 +
+                Build.ID.length()%10 + Build.MANUFACTURER.length()%10 +
+                Build.MODEL.length()%10 + Build.PRODUCT.length()%10 +
+                Build.TAGS.length()%10 + Build.TYPE.length()%10 +
+                Build.USER.length()%10 ;
+
+        FirebaseMessaging.getInstance().subscribeToTopic("STREAMING_RADIO")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        String msg = "SUKSES";
+                        if (!task.isSuccessful()) {
+                            msg = "GAGALEUN";
+                        }
+                        Log.e(TAG, "onComplete: " + msg);
+                    }
+                });
+
+        FirebaseMessaging.getInstance().subscribeToTopic("streamingTanya")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        String msg = "SUKSES TANYA";
+                        if (!task.isSuccessful()) {
+                            msg = "GAGALEUN TANYA";
+                        }
+                        Log.e(TAG, "onComplete: " + msg);
+                    }
+                });
+
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                TOKENFCM = instanceIdResult.getToken();
+                sendTokenAdsId();
+            }
+        });
+
+
+
         new MyTask().execute();
         tampilkanFoto();
+        loadingDataChatting();
+    }
+
+    private void sendTokenAdsId() {
+        List<String> list = new ArrayList<>();
+        list.add(ID_LOGIN); list.add(ADSID); list.add(TOKENFCM);
+        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.GET_UPDATE);
+        synchronized (this){
+            handlerServer.sendDataToServer(new VolleyCallback() {
+                @Override
+                public void onFailed(String result) {
+                    Log.e(TAG, "onFailed: sendToken" + result);
+                }
+
+                @Override
+                public void onSuccess(JSONArray jsonArray) {
+                    Log.e(TAG, "onSuccess: sendToken" + jsonArray);
+                }
+            }, list);
+        }
+    }
+
+    private void loadingDataChatting() {
+        List<String> list =new ArrayList<>();
+        list.add("0");
+        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.LOAD_COMMENT_DATA);
+        synchronized (this){
+            handlerServer.sendDataToServer(new VolleyCallback() {
+                @Override
+                public void onFailed(String result) {
+                    infokanKeUser("Gagal mengambil data Chat");
+                }
+
+                @Override
+                public void onSuccess(JSONArray jsonArray) {
+                    parsingDataChatting(jsonArray);
+                }
+            }, list);
+        }
+    }
+
+    private void parsingDataChatting(JSONArray jsonArray) {
+        List<ModelStreaming> list = new ArrayList<>();
+        JSONObject dataServer;
+        for (int i=0; i< jsonArray.length(); i++){
+            try {
+                dataServer = jsonArray.getJSONObject(i);
+                JSONObject isiData = dataServer.getJSONObject("data");
+                list.add(new ModelStreaming(
+                        Integer.parseInt(dataServer.getString("id")),
+                        isiData.getString("pesan"),
+                        isiData.getString("tanggal"),
+                        isiData.getString("waktu"),
+                        isiData.getString("id_login"),
+                        isiData.getString("photo")
+                ));
+                tampilkanDataChatting(list);
+            } catch (JSONException e) {
+                Log.e(TAG, "parsingDataChatting: exception: " + e);
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void tampilkanDataChatting(List<ModelStreaming> list) {
+        this.modelStreaming = list;
+        if (list.isEmpty()){
+            Log.e(TAG, "tampilkanDataChatting: " + list.size());
+        } else {
+
+            linearLayoutManager = new LinearLayoutManager(this);
+            adapterStreaming =new AdapterStreaming(modelStreaming, this);
+            streaming_recyclerview.setAdapter(adapterStreaming);
+            streaming_recyclerview.setLayoutManager(linearLayoutManager);
+            streaming_recyclerview.setItemAnimator(new DefaultItemAnimator());
+        }
     }
 
     private void tampilkanFoto() {
@@ -174,6 +331,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             imageView.setImageResource(R.drawable.avatar);
         }
+
+        List<String> list = new ArrayList<>();
+        list.add(ID_LOGIN);
+        list.add(String.valueOf(photo));
+        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.POST_SAVE_PHOTO);
+        synchronized (this) {
+            handlerServer.sendDataToServer(new VolleyCallback() {
+                @Override
+                public void onFailed(String result) {
+                    if (result.contains("berhasil")){
+                        Log.e(TAG, "onFailed: BERHASIL SIMPAN PHOTO");
+                    }
+                    Log.e(TAG, "onFailed: save photo " + result);
+                }
+
+                @Override
+                public void onSuccess(JSONArray jsonArray) {
+                    Log.e(TAG, "onSuccess: save photo" + jsonArray);
+                }
+            }, list);
+        }
     }
 
     private void initListener() {
@@ -190,6 +368,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        streaming_recyclerview = findViewById(R.id.streaming_recyclerview);
+        btn_send = findViewById(R.id.streaming_sendpesan); btn_send.setOnClickListener(this);
+        editTextPesan = findViewById(R.id.streaming_edittext);
     }
 
     @Override
@@ -216,10 +397,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 LoginManager.getInstance().logOut();
             }
             if (SUMBER_LOGIN.equals("GOOGLE")){
-                // Firebase sign out
                 mAuth.signOut();
-
-                // Google sign out
                 mGoogleSignInClient.signOut().addOnCompleteListener(this,
                         new OnCompleteListener<Void>() {
                             @Override
@@ -285,6 +463,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent intent = new Intent("exit");
                 sendBroadcast(intent);
                 break;
+            case R.id.streaming_sendpesan:
+                kirimPesan();
+                break;
+        }
+    }
+
+    private void kirimPesan() {
+        String pesan = editTextPesan.getText().toString();
+        if (!pesan.equals("")){
+            kirimKeServer(pesan);
+        }
+        editTextPesan.setText("");
+    }
+
+    private void kirimKeServer(String pesan) {
+        Date c = Calendar.getInstance().getTime();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
+        String tanggal = df.format(c);
+        String waktu = tf.format(c);
+
+        List<String> list = new ArrayList<>();
+        list.add(pesan);
+        list.add(tanggal);
+        list.add(waktu);
+        list.add(ID_LOGIN);
+
+        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.SEND_COMMENT_DATA);
+        synchronized (this){
+            handlerServer.sendDataToServer(new VolleyCallback() {
+                @Override
+                public void onFailed(String result) {
+                    Log.e(TAG, "onFailed: " + result);
+                }
+
+                @Override
+                public void onSuccess(JSONArray jsonArray) {
+                    Toast.makeText(MainActivity.this, "Pesan Terkirim", Toast.LENGTH_SHORT).show();
+                }
+            }, list);
         }
     }
 

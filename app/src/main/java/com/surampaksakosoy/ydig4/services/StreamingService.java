@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -150,30 +151,40 @@ public class StreamingService extends Service implements
     private void initIfPhoneCall(){
         Log.e(TAG, "initIfPhoneCall: ");
         TelephonyManager telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        PhoneStateListener phoneStateListener = new PhoneStateListener() {
-            @Override
-            public void onCallStateChanged(int state, String phoneNumber) {
-                switch (state) {
-                    case TelephonyManager.CALL_STATE_OFFHOOK:
-                    case TelephonyManager.CALL_STATE_RINGING:
-                        Log.e(TAG, "onCallStateChanged: OFFHOOK + STATE RINGING");
-                        if (mediaPlayer != null) {
-                            pauseMedia();
-                            isPausedCall = true;
-                        }
-                        break;
-                    case TelephonyManager.CALL_STATE_IDLE:
-                        if (mediaPlayer != null) {
-                            if (isPausedCall){
-                                isPausedCall = false;
-                                playMedia();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            PhoneStateListener phoneStateListener = new PhoneStateListener() {
+                @Override
+                public void onCallStateChanged(int state, String phoneNumber) {
+                    switch (state) {
+                        case TelephonyManager.CALL_STATE_OFFHOOK:
+                        case TelephonyManager.CALL_STATE_RINGING:
+                            Log.e(TAG, "onCallStateChanged: OFFHOOK + STATE RINGING");
+                            if (mediaPlayer != null) {
+                                pauseMedia();
+                                isPausedCall = true;
                             }
-                        }
-                        break;
+                            break;
+                        case TelephonyManager.CALL_STATE_IDLE:
+                            if (mediaPlayer != null) {
+                                if (isPausedCall){
+                                    isPausedCall = false;
+                                    playMedia();
+                                }
+                            }
+                            break;
+                    }
                 }
+            };
+            telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+        } else {
+            if (mediaPlayer != null) {
+//                if (isPausedCall){
+//                    isPausedCall = false;
+                    playMedia();
+//                }
             }
-        };
-        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+        }
     }
 
     private void playMedia(){

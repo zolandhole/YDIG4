@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:padding="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/streaming_photo"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="start"
+        app:civ_border_color="#fff"
+        android:src="@drawable/ic_account"
+        app:civ_border_width="1dp"/>
+
+    <LinearLayout
+        android:layout_marginStart="10dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/nama"
+                android:fontFamily="@font/robotoregular"
+                android:layout_weight=".3"
+                android:id="@+id/streaming_dari"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:fontFamily="@font/robotothin"
+                android:text="@string/jam"
+                android:layout_weight="1.7"
+                android:textColor="@color/darkGrey"
+                android:textSize="12sp"
+                android:layout_gravity="end"
+                android:textAlignment="viewEnd"
+                android:id="@+id/streaming_jam"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <Button
+            android:background="@color/darkGrey"
+            android:layout_width="match_parent"
+            android:layout_height="1dp" />
+
+        <TextView
+            android:fontFamily="@font/robotolight"
+            android:text="@string/pesan"
+            android:id="@+id/streaming_pesan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

@@ -19,4 +19,7 @@
     <string name="streaming_status">Streaming Status</string>
     <string name="koneksi_buruk">Koneksi buruk, sedang memuat Data …</string>
     <string name="Mohon_tunggu">Mohon tunggu, sedang menghubungi server…</string>
+    <string name="nama">nama</string>
+    <string name="jam">jam</string>
+    <string name="pesan">pesan</string>
 </resources>
