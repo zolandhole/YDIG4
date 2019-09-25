@@ -3,6 +3,7 @@ package com.surampaksakosoy.ydig4;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -25,6 +26,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -90,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AdapterStreaming adapterStreaming;
     private List<ModelStreaming> modelStreaming;
     private EditText editTextPesan;
+    private CardView cv_pesanBaru;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -149,7 +152,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int insertIndex = 0;
         modelStreaming.add(insertIndex, item);
         adapterStreaming.notifyItemInserted(insertIndex);
-        linearLayoutManager.scrollToPosition(0);
+        int scrollPosition = linearLayoutManager.findFirstVisibleItemPosition();
+        Log.e(TAG, "pesanBaruDatang: " + scrollPosition);
+        if (scrollPosition == 0){
+            linearLayoutManager.scrollToPosition(0);
+            cv_pesanBaru.setVisibility(View.GONE);
+        } else {
+            cv_pesanBaru.setVisibility(View.VISIBLE);
+        }
     }
 
 
@@ -371,6 +381,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         streaming_recyclerview = findViewById(R.id.streaming_recyclerview);
         btn_send = findViewById(R.id.streaming_sendpesan); btn_send.setOnClickListener(this);
         editTextPesan = findViewById(R.id.streaming_edittext);
+        cv_pesanBaru = findViewById(R.id.cv_pesan_baru); cv_pesanBaru.setOnClickListener(this);
+
+        streaming_recyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (linearLayoutManager.findFirstVisibleItemPosition() == 0){
+                    cv_pesanBaru.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 
     @Override
@@ -465,6 +487,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.streaming_sendpesan:
                 kirimPesan();
+                break;
+            case R.id.cv_pesan_baru:
+                linearLayoutManager.scrollToPosition(0);
+                cv_pesanBaru.setVisibility(View.GONE);
                 break;
         }
     }

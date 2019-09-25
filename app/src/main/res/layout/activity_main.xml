@@ -214,6 +214,24 @@
             android:textColor="@color/white"
             android:textAlignment="center"
             android:layout_height="wrap_content" />
+
+        <androidx.cardview.widget.CardView
+            android:visibility="gone"
+            android:id="@+id/cv_pesan_baru"
+            android:layout_marginTop="10dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/relPlayer"
+            app:cardCornerRadius="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textColor="@color/colorPrimary"
+                android:fontFamily="@font/robotoregular"
+                android:layout_margin="10dp"
+                android:text="@string/pesan_baru"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </androidx.cardview.widget.CardView>
     </RelativeLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
