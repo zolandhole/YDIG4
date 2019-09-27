@@ -29,7 +29,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -78,11 +77,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String TAG = "MainActivity";
 
-    private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL, ADSID, TOKENFCM;
+    private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL, ADSID, TOKENFCM, VERSI;
     private DBHandler dbHandler;
     private Button buttonPlay, buttonStop, btn_send;
     private ProgressBar progress_play, progressbar_send;
-    private TextView main_status_streaming;
+    private TextView main_status_streaming, judul_kajian;
     private FirebaseAuth mAuth;
     private int countError = 0;
     private GoogleSignInClient mGoogleSignInClient;
@@ -93,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<ModelStreaming> modelStreaming;
     private EditText editTextPesan;
     private CardView cv_pesanBaru;
-    private RelativeLayout relPlayer;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -149,41 +147,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     progressbar_send.setVisibility(View.GONE);
                     btn_send.setVisibility(View.VISIBLE);
                     break;
+                case "datakajian":
+                    judul_kajian.setText(intent.getStringExtra("title"));
+                    judul_kajian.setVisibility(View.VISIBLE);
+                    break;
             }
 
         }
     };
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (isMyServiceRunning()){
-            buttonPlay.setVisibility(View.GONE);
-            buttonStop.setVisibility(View.VISIBLE);
-        } else {
-            buttonStop.setVisibility(View.GONE);
-            buttonPlay.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void pesanBaruDatang(ArrayList<String> dataPesan) {
-        ModelStreaming item = (new ModelStreaming(
-                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5),dataPesan.get(6)
-        ));
-        int insertIndex = 0;
-        modelStreaming.add(insertIndex, item);
-        adapterStreaming.notifyItemInserted(insertIndex);
-        int scrollPosition = linearLayoutManager.findFirstVisibleItemPosition();
-        if (scrollPosition == 0 || dataPesan.get(6).equals(ID_LOGIN)){
-            linearLayoutManager.scrollToPosition(0);
-            cv_pesanBaru.setVisibility(View.GONE);
-        } else {
-            cv_pesanBaru.setVisibility(View.VISIBLE);
-        }
-        progressbar_send.setVisibility(View.GONE);
-        btn_send.setVisibility(View.VISIBLE);
-        editTextPesan.setEnabled(true);
-    }
 
 
     @Override
@@ -192,7 +163,92 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         initListener();
+        daftarkanBroadcast();
 
+        //pengecekan User Login
+        ID_LOGIN = cekApakahUserPernahLogin();
+        if (ID_LOGIN == null){
+            keLogin();
+        } else {
+            getAppVersion();
+            collectPhoneData();
+
+            //JalanKan Service Streaming
+            if (!isMyServiceRunning()){
+                new MyTask().execute();
+            }
+
+            loadingDataChatting();
+        }
+    }
+
+    private void getAppVersion() {
+        List<String> list = new ArrayList<>();
+        list.add("0");
+        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.GET_VERSION);
+        synchronized (this){
+            handlerServer.sendDataToServer(new VolleyCallback() {
+                @Override
+                public void onFailed(String result) {
+                    Log.e(TAG, "onFailed: " + result);
+                }
+
+                @Override
+                public void onSuccess(JSONArray jsonArray) {
+                    JSONObject dataServer;
+                    for (int i=0; i< jsonArray.length(); i++){
+                        try {
+                            dataServer = jsonArray.getJSONObject(i);
+                            if (Double.valueOf(VERSI) < Double.valueOf(dataServer.getString("version"))){
+                                Log.e(TAG, "onSuccess: Versi Beda, Phone Version:" + VERSI + " New Versi:" + dataServer.getString("version"));
+                            } else {
+                                Log.e(TAG, "onSuccess: Versi Sama");
+                            }
+                        } catch (JSONException e) {
+                            Log.e(TAG, "exception: " + e);
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }, list);
+        }
+    }
+
+    private void initListener() {
+        dbHandler = new DBHandler(this);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        judul_kajian = findViewById(R.id.judul_kajian);
+        buttonPlay = findViewById(R.id.buttonPlay); buttonPlay.setOnClickListener(this);
+        buttonStop = findViewById(R.id.buttonStop); buttonStop.setOnClickListener(this);
+        progress_play = findViewById(R.id.progress_play);
+        main_status_streaming = findViewById(R.id.main_status_streaming);
+        mAuth = FirebaseAuth.getInstance();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        streaming_recyclerview = findViewById(R.id.streaming_recyclerview);
+        btn_send = findViewById(R.id.streaming_sendpesan); btn_send.setOnClickListener(this);
+        progressbar_send = findViewById(R.id.progressbar_send);
+        editTextPesan = findViewById(R.id.streaming_edittext);
+        cv_pesanBaru = findViewById(R.id.cv_pesan_baru); cv_pesanBaru.setOnClickListener(this);
+
+        streaming_recyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (linearLayoutManager.findFirstVisibleItemPosition() == 0){
+                    cv_pesanBaru.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    private void daftarkanBroadcast() {
         IntentFilter filter = new IntentFilter();
         filter.addAction("mediaplayed");
         filter.addAction("mediastoped");
@@ -200,30 +256,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         filter.addAction("streamingError");
         filter.addAction("PESANBARU");
         filter.addAction("errorsenddata");
+        filter.addAction("datakajian");
         registerReceiver(broadcastReceiver, filter);
+    }
 
-        ID_LOGIN = cekApakahUserPernahLogin();
-        if (ID_LOGIN == null){
-            keLogin();
-        } else {
-            lanjutkanKeLangkahBerikutnya();
+    private String cekApakahUserPernahLogin() {
+        ArrayList<HashMap<String, String>> userDB = dbHandler.getUser(1);
+        for (Map<String,String> map : userDB){
+            SUMBER_LOGIN = map.get("sumber_login");
+            ID_LOGIN = map.get("id_login");
+            NAMA = map.get("nama");
+            EMAIL = map.get("email");
+            VERSI = map.get("version");
         }
+        return ID_LOGIN;
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        countError = 0;
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        sendBroadcast(new Intent("exit"));
-        unregisterReceiver(broadcastReceiver);
-    }
-
-    private void lanjutkanKeLangkahBerikutnya() {
+    private void collectPhoneData() {
+        // pengambilan Phone Uniq ID
         ADSID = "35" +
                 Build.BOARD.length()%10+ Build.BRAND.length()%10 +
                 Build.CPU_ABI.length()%10 + Build.DEVICE.length()%10 +
@@ -233,50 +283,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Build.TAGS.length()%10 + Build.TYPE.length()%10 +
                 Build.USER.length()%10 ;
 
-        FirebaseMessaging.getInstance().subscribeToTopic("STREAMING_RADIO")
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        String msg = "SUKSES";
-                        if (!task.isSuccessful()) {
-                            msg = "GAGALEUN";
-                        }
-                        Log.e(TAG, "onComplete: " + msg);
-                    }
-                });
+        //Subscribe topic fcm
+        FirebaseMessaging.getInstance().subscribeToTopic("STREAMING_RADIO");
+        FirebaseMessaging.getInstance().subscribeToTopic("streamingTanya");
 
-        FirebaseMessaging.getInstance().subscribeToTopic("streamingTanya")
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        String msg = "SUKSES TANYA";
-                        if (!task.isSuccessful()) {
-                            msg = "GAGALEUN TANYA";
-                        }
-                        Log.e(TAG, "onComplete: " + msg);
-                    }
-                });
 
+        // Get Photo Profile
+        final CircleImageView imageView = findViewById(R.id.nav_image_view);
+        final Uri photo;
+        int dimensionPixelSize = getResources()
+                .getDimensionPixelSize(com.facebook.R.dimen.com_facebook_profilepictureview_preset_size_large);
+        if (SUMBER_LOGIN.equals("FACEBOOK")) {
+            photo = ImageRequest.getProfilePictureUri(ID_LOGIN, dimensionPixelSize, dimensionPixelSize);
+        } else {
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            assert currentUser != null;
+            photo = currentUser.getPhotoUrl();
+        }
+
+        if (photo != null) {
+            Glide.with(this).load(photo).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
+        } else {
+            imageView.setImageResource(R.drawable.avatar);
+        }
+
+        //get TOKEN
         FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
             @Override
             public void onSuccess(InstanceIdResult instanceIdResult) {
                 TOKENFCM = instanceIdResult.getToken();
-                sendTokenAdsId();
+                sendCollectPhoneData(photo);
             }
         });
-
-
-        if (!isMyServiceRunning()){
-            new MyTask().execute();
-        }
-        tampilkanFoto();
-        loadingDataChatting();
     }
-
-    private void sendTokenAdsId() {
+        private void sendCollectPhoneData(Uri photo) {
         List<String> list = new ArrayList<>();
-        list.add(ID_LOGIN); list.add(ADSID); list.add(TOKENFCM);
-        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.GET_UPDATE);
+        list.add(ID_LOGIN); list.add(ADSID); list.add(TOKENFCM); list.add(String.valueOf(photo));
+        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.SAVE_PHONE_DATA);
+        Log.e(TAG, "sendCollectPhoneData: " + list);
         synchronized (this){
             handlerServer.sendDataToServer(new VolleyCallback() {
                 @Override
@@ -310,8 +354,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }, list);
         }
     }
-
-    private void parsingDataChatting(JSONArray jsonArray) {
+        private void parsingDataChatting(JSONArray jsonArray) {
         List<ModelStreaming> list = new ArrayList<>();
         JSONObject dataServer;
         for (int i=0; i< jsonArray.length(); i++){
@@ -334,8 +377,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
-
-    private void tampilkanDataChatting(List<ModelStreaming> list) {
+        private void tampilkanDataChatting(List<ModelStreaming> list) {
         this.modelStreaming = list;
         if (list.isEmpty()){
             Log.e(TAG, "tampilkanDataChatting: " + list.size());
@@ -349,79 +391,98 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void tampilkanFoto() {
-        final CircleImageView imageView = findViewById(R.id.nav_image_view);
-        Uri photo;
-        int dimensionPixelSize = getResources()
-                .getDimensionPixelSize(com.facebook.R.dimen.com_facebook_profilepictureview_preset_size_large);
-        if (SUMBER_LOGIN.equals("FACEBOOK")) {
-            photo = ImageRequest.getProfilePictureUri(ID_LOGIN, dimensionPixelSize, dimensionPixelSize);
+    private void pesanBaruDatang(ArrayList<String> dataPesan) {
+        ModelStreaming item = (new ModelStreaming(
+                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5),dataPesan.get(6)
+        ));
+        int insertIndex = 0;
+        modelStreaming.add(insertIndex, item);
+        adapterStreaming.notifyItemInserted(insertIndex);
+        int scrollPosition = linearLayoutManager.findFirstVisibleItemPosition();
+        if (scrollPosition == 0 || dataPesan.get(6).equals(ID_LOGIN)){
+            linearLayoutManager.scrollToPosition(0);
+            cv_pesanBaru.setVisibility(View.GONE);
         } else {
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-            assert currentUser != null;
-            photo = currentUser.getPhotoUrl();
+            cv_pesanBaru.setVisibility(View.VISIBLE);
         }
+        progressbar_send.setVisibility(View.GONE);
+        btn_send.setVisibility(View.VISIBLE);
+        editTextPesan.setEnabled(true);
+    }
 
-        if (photo != null) {
-            Glide.with(this).load(photo).diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(imageView);
-        } else {
-            imageView.setImageResource(R.drawable.avatar);
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.buttonPlay:
+                progress_play.setVisibility(View.VISIBLE);
+                buttonPlay.setVisibility(View.GONE);
+                if (!isMyServiceRunning()){
+                    new MyTask().execute();
+                }
+                break;
+            case R.id.buttonStop:
+                progress_play.setVisibility(View.VISIBLE);
+                buttonStop.setVisibility(View.GONE);
+                Intent intent = new Intent("exit");
+                sendBroadcast(intent);
+                break;
+            case R.id.streaming_sendpesan:
+                kirimPesan();
+                break;
+            case R.id.cv_pesan_baru:
+                linearLayoutManager.scrollToPosition(0);
+                cv_pesanBaru.setVisibility(View.GONE);
+                break;
         }
+    }
+        private void kirimPesan() {
+        String pesan = editTextPesan.getText().toString();
+        if (!pesan.equals("")){
+            progressbar_send.setVisibility(View.VISIBLE);
+            btn_send.setVisibility(View.GONE);
+            editTextPesan.setEnabled(false);
+            Date c = Calendar.getInstance().getTime();
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
+            String tanggal = df.format(c);
+            String waktu = tf.format(c);
 
-        List<String> list = new ArrayList<>();
-        list.add(ID_LOGIN);
-        list.add(String.valueOf(photo));
-        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.POST_SAVE_PHOTO);
-        synchronized (this) {
-            handlerServer.sendDataToServer(new VolleyCallback() {
-                @Override
-                public void onFailed(String result) {
-                    if (result.contains("berhasil")){
-                        Log.e(TAG, "onFailed: BERHASIL SIMPAN PHOTO");
+            List<String> list = new ArrayList<>();
+            list.add(tanggal);
+            list.add(waktu);
+            list.add(ID_LOGIN);
+            list.add(pesan);
+            HandlerServer handlerServer = new HandlerServer(this, PublicAddress.SEND_COMMENT_DATA);
+            synchronized (this){
+                handlerServer.sendDataToServer(new VolleyCallback() {
+                    @Override
+                    public void onFailed(String result) {
+                        if (!result.contains("berhasil")){
+                            progressbar_send.setVisibility(View.GONE);
+                            btn_send.setVisibility(View.VISIBLE);
+                            editTextPesan.setEnabled(true);
+                            Toast.makeText(MainActivity.this, "Gagal Mengirim Pesan, Silahkan Coba lagi", Toast.LENGTH_SHORT).show();
+                        } else {
+                            progressbar_send.setVisibility(View.GONE);
+                            btn_send.setVisibility(View.VISIBLE);
+                            editTextPesan.setText("");
+                            editTextPesan.setEnabled(true);
+                        }
                     }
-                    Log.e(TAG, "onFailed: save photo " + result);
-                }
 
-                @Override
-                public void onSuccess(JSONArray jsonArray) {
-                    Log.e(TAG, "onSuccess: save photo" + jsonArray);
-                }
-            }, list);
+                    @Override
+                    public void onSuccess(JSONArray jsonArray) {
+                        Toast.makeText(MainActivity.this, "Pesan Terkirim", Toast.LENGTH_SHORT).show();
+                    }
+                }, list);
+            }
         }
     }
 
-    private void initListener() {
-        dbHandler = new DBHandler(this);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        relPlayer = findViewById(R.id.relPlayer);
-        buttonPlay = findViewById(R.id.buttonPlay); buttonPlay.setOnClickListener(this);
-        buttonStop = findViewById(R.id.buttonStop); buttonStop.setOnClickListener(this);
-        progress_play = findViewById(R.id.progress_play);
-        main_status_streaming = findViewById(R.id.main_status_streaming);
-        mAuth = FirebaseAuth.getInstance();
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        streaming_recyclerview = findViewById(R.id.streaming_recyclerview);
-        btn_send = findViewById(R.id.streaming_sendpesan); btn_send.setOnClickListener(this);
-        progressbar_send = findViewById(R.id.progressbar_send);
-        editTextPesan = findViewById(R.id.streaming_edittext);
-        cv_pesanBaru = findViewById(R.id.cv_pesan_baru); cv_pesanBaru.setOnClickListener(this);
-
-        streaming_recyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
-
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (linearLayoutManager.findFirstVisibleItemPosition() == 0){
-                    cv_pesanBaru.setVisibility(View.GONE);
-                }
-            }
-        });
+    @Override
+    protected void onStart() {
+        super.onStart();
+        countError = 0;
     }
 
     @Override
@@ -465,8 +526,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(intent);
         finish();
     }
-
-    private void ubahStatusDiServer() {
+        private void ubahStatusDiServer() {
         List<String> list =new ArrayList<>();
         list.add(ID_LOGIN);
         HandlerServer handlerServer = new HandlerServer(this, PublicAddress.POST_LOGOUT);
@@ -482,91 +542,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onSuccess(JSONArray jsonArray) {
                     Log.e(TAG, "onSuccess: " + jsonArray);
-                }
-            }, list);
-        }
-    }
-
-    private String cekApakahUserPernahLogin() {
-        ArrayList<HashMap<String, String>> userDB = dbHandler.getUser(1);
-        for (Map<String,String> map : userDB){
-            SUMBER_LOGIN = map.get("sumber_login");
-            ID_LOGIN = map.get("id_login");
-            NAMA = map.get("nama");
-            EMAIL = map.get("email");
-        }
-        return ID_LOGIN;
-    }
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()){
-            case R.id.buttonPlay:
-                progress_play.setVisibility(View.VISIBLE);
-                buttonPlay.setVisibility(View.GONE);
-                if (!isMyServiceRunning()){
-                    new MyTask().execute();
-                }
-                break;
-            case R.id.buttonStop:
-                progress_play.setVisibility(View.VISIBLE);
-                buttonStop.setVisibility(View.GONE);
-                Intent intent = new Intent("exit");
-                sendBroadcast(intent);
-                break;
-            case R.id.streaming_sendpesan:
-                kirimPesan();
-                break;
-            case R.id.cv_pesan_baru:
-                linearLayoutManager.scrollToPosition(0);
-                cv_pesanBaru.setVisibility(View.GONE);
-                break;
-        }
-    }
-
-    private void kirimPesan() {
-        String pesan = editTextPesan.getText().toString();
-        if (!pesan.equals("")){
-            kirimKeServer(pesan);
-        }
-    }
-
-    private void kirimKeServer(String pesan) {
-        progressbar_send.setVisibility(View.VISIBLE);
-        btn_send.setVisibility(View.GONE);
-        editTextPesan.setEnabled(false);
-        Date c = Calendar.getInstance().getTime();
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
-        String tanggal = df.format(c);
-        String waktu = tf.format(c);
-
-        List<String> list = new ArrayList<>();
-        list.add(tanggal);
-        list.add(waktu);
-        list.add(ID_LOGIN);
-        list.add(pesan);
-        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.SEND_COMMENT_DATA);
-        synchronized (this){
-            handlerServer.sendDataToServer(new VolleyCallback() {
-                @Override
-                public void onFailed(String result) {
-                    if (!result.contains("berhasil")){
-                        progressbar_send.setVisibility(View.GONE);
-                        btn_send.setVisibility(View.VISIBLE);
-                        editTextPesan.setEnabled(true);
-                        Toast.makeText(MainActivity.this, "Gagal Mengirim Pesan, Silahkan Coba lagi", Toast.LENGTH_SHORT).show();
-                    } else {
-                        progressbar_send.setVisibility(View.GONE);
-                        btn_send.setVisibility(View.VISIBLE);
-                        editTextPesan.setText("");
-                        editTextPesan.setEnabled(true);
-                    }
-                }
-
-                @Override
-                public void onSuccess(JSONArray jsonArray) {
-                    Toast.makeText(MainActivity.this, "Pesan Terkirim", Toast.LENGTH_SHORT).show();
                 }
             }, list);
         }
@@ -640,6 +615,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (isMyServiceRunning()){
+            buttonPlay.setVisibility(View.GONE);
+            buttonStop.setVisibility(View.VISIBLE);
+        } else {
+            buttonStop.setVisibility(View.GONE);
+            buttonPlay.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
             super.onBackPressed();
@@ -655,5 +642,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 doubleBackToExitPressedOnce=false;
             }
         }, 2000);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        sendBroadcast(new Intent("exit"));
+        unregisterReceiver(broadcastReceiver);
     }
 }

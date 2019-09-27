@@ -24,7 +24,7 @@ import static com.surampaksakosoy.ydig4.util.App.CHANNEL_1;
 
 public class EPCEEMService extends FirebaseMessagingService {
 
-    private static final String TAG = "FirebaseService";
+    private static final String TAG = "EPCEEMSERVICE";
     private NotificationManagerCompat notificationManagerCompat;
 
     @Override
@@ -72,6 +72,10 @@ public class EPCEEMService extends FirebaseMessagingService {
             else {
                 String title = data.getString("title");
                 String message = data.getString("message");
+                Intent intentdatakajian = new Intent("datakajian");
+                intentdatakajian.putExtra("title", title);
+                intentdatakajian.putExtra("message", message);
+                sendBroadcast(intentdatakajian);
                 showNotificationInfo(title, message);
             }
         } catch (JSONException e) {

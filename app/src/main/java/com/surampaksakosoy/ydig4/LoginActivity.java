@@ -39,6 +39,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.surampaksakosoy.ydig4.models.ModelStreaming;
 import com.surampaksakosoy.ydig4.models.ModelUser;
 import com.surampaksakosoy.ydig4.util.DBHandler;
 import com.surampaksakosoy.ydig4.util.HandlerServer;
@@ -60,7 +61,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private static final String TAG = "LoginActivity";
     private LoginButton signInFacebook;
     private CallbackManager callbackManager;
-    private String ID_LOGIN, NAMA, EMAIL, SUMBER_LOGIN;
+    private String ID_LOGIN, NAMA, EMAIL, SUMBER_LOGIN, VERSI;
     private DBHandler dbHandler;
     private ProgressBar login_progressBar;
 
@@ -74,6 +75,37 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         initListener();
+        getAppVersion();
+    }
+
+    private void getAppVersion() {
+        List<String> list = new ArrayList<>();
+        list.add("0");
+        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.GET_VERSION);
+        synchronized (this){
+            handlerServer.sendDataToServer(new VolleyCallback() {
+                @Override
+                public void onFailed(String result) {
+                    Log.e(TAG, "onFailed: " + result);
+                }
+
+                @Override
+                public void onSuccess(JSONArray jsonArray) {
+                    JSONObject dataServer;
+                    for (int i=0; i< jsonArray.length(); i++){
+                        try {
+                            dataServer = jsonArray.getJSONObject(i);
+//                            JSONObject isiData = dataServer.getJSONObject("version");
+                            Log.e(TAG, "onSuccess: Version: "+ dataServer.getString("version"));
+                            VERSI = dataServer.getString("version");
+                        } catch (JSONException e) {
+                            Log.e(TAG, "exception: " + e);
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }, list);
+        }
     }
 
     private void updateUI(FirebaseUser user) {
@@ -83,12 +115,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             EMAIL = user.getEmail();
             SUMBER_LOGIN = "GOOGLE";
             masukanKeDatabaseLokal();
-//            Log.e(TAG, "updateUI: " + user.getEmail());
-//            Log.e(TAG, "updateUI: " + user.getUid());
-//            Log.e(TAG, "updateUI: " + user.getDisplayName());
-//            Log.e(TAG, "updateUI: " + user.getPhoneNumber());
-//            Log.e(TAG, "updateUI: " + user.getPhotoUrl());
-//            Log.e(TAG, "updateUI: " + user.getProviderId());
         } else {
             infokanKeUser("Batal masuk menggunakan akun Google");
         }
@@ -163,20 +189,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    private void signOut() {
-        // Firebase sign out
-        mAuth.signOut();
-
-        // Google sign out
-        mGoogleSignInClient.signOut().addOnCompleteListener(this,
-                new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        updateUI(null);
-                    }
-                });
-    }
-
 //    private void revokeAccess() {
 //        // Firebase sign out
 //        mAuth.signOut();
@@ -193,7 +205,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void masukanKeDatabaseLokal() {
         dbHandler = new DBHandler(this);
-        dbHandler.addUser(new ModelUser(1,SUMBER_LOGIN,ID_LOGIN,NAMA,EMAIL));
+        dbHandler.addUser(new ModelUser(1,SUMBER_LOGIN,ID_LOGIN,NAMA,EMAIL, VERSI));
         dbHandler.close();
         cekLokalDB();
     }
@@ -224,6 +236,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             list.add(NAMA);
             list.add(EMAIL);
             list.add("1");
+            list.add(VERSI);
             HandlerServer handlerServer = new HandlerServer(this, PublicAddress.POST_LOGIN);
             synchronized (this){
                 handlerServer.sendDataToServer(new VolleyCallback() {

@@ -22,6 +22,7 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String KEY_ID_LOGIN = "id_login";
     private static final String KEY_NAMA = "nama";
     private static final String KEY_EMAIL = "email";
+    private static final String KEY_VERSION = "version";
 
     public DBHandler(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -34,7 +35,8 @@ public class DBHandler extends SQLiteOpenHelper {
                 KEY_SUMBER_LOGIN + " TEXT, " +
                 KEY_ID_LOGIN + " TEXT, " +
                 KEY_NAMA + " TEXT, " +
-                KEY_EMAIL + " TEXT)";
+                KEY_EMAIL + " TEXT, " +
+                KEY_VERSION + " TEXT)";
         db.execSQL(CREATE_USER_TABLE);
     }
 
@@ -52,6 +54,7 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(KEY_ID_LOGIN, modelUser.getId_login());
         values.put(KEY_NAMA, modelUser.getNama());
         values.put(KEY_EMAIL, modelUser.getEmail());
+        values.put(KEY_VERSION, modelUser.getVersion());
         db.insert(TABLE_USER, null, values);
         db.close();
     }
@@ -60,7 +63,7 @@ public class DBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ArrayList<HashMap<String, String>> userList = new ArrayList<>();
         @SuppressLint("Recycle") Cursor cursor = db.query(TABLE_USER,
-                new String[]{KEY_ID, KEY_SUMBER_LOGIN, KEY_ID_LOGIN, KEY_NAMA, KEY_EMAIL},
+                new String[]{KEY_ID, KEY_SUMBER_LOGIN, KEY_ID_LOGIN, KEY_NAMA, KEY_EMAIL, KEY_VERSION},
                 KEY_ID + "=?",
                 new String[]{String.valueOf(i)}
                 , null, null, null, null
@@ -73,6 +76,7 @@ public class DBHandler extends SQLiteOpenHelper {
             user.put("id_login", cursor.getString(cursor.getColumnIndex(KEY_ID_LOGIN)));
             user.put("nama", cursor.getString(cursor.getColumnIndex(KEY_NAMA)));
             user.put("email", cursor.getString(cursor.getColumnIndex(KEY_EMAIL)));
+            user.put("version", cursor.getString(cursor.getColumnIndex(KEY_VERSION)));
             userList.add(user);
         }
         db.close();

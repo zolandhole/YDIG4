@@ -82,15 +82,7 @@
                     android:fontFamily="@font/robotoregular"
                     android:textAlignment="center"
                     android:text="@string/judul_kajian"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:layout_below="@+id/judul_kajian"
-                    android:id="@+id/pemateri"
-                    android:fontFamily="@font/robotolight"
-                    android:textAlignment="center"
-                    android:text="@string/pemateri"
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
@@ -102,7 +94,7 @@
                     android:paddingEnd="10dp"
                     android:layout_marginBottom="10dp"
                     android:layout_centerHorizontal="true"
-                    android:layout_below="@+id/pemateri"
+                    android:layout_below="@+id/judul_kajian"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/ic_stop"
@@ -118,7 +110,7 @@
                     android:paddingEnd="10dp"
                     android:layout_marginBottom="10dp"
                     android:layout_centerHorizontal="true"
-                    android:layout_below="@+id/pemateri"
+                    android:layout_below="@+id/judul_kajian"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/ic_play"
@@ -132,7 +124,7 @@
                     android:id="@+id/progress_play"
                     android:layout_marginTop="23dp"
                     android:layout_centerHorizontal="true"
-                    android:layout_below="@+id/pemateri"
+                    android:layout_below="@+id/judul_kajian"
                     android:layout_width="25dp"
                     android:layout_height="25dp" />
 
