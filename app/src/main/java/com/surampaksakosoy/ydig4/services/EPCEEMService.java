@@ -64,16 +64,11 @@ public class EPCEEMService extends FirebaseMessagingService {
                 list.add(data.getString("waktu"));
                 list.add(data.getString("id_login"));
                 list.add(data.getString("photo"));
+                list.add(data.getString("uniq_id"));
                 Intent intent = new Intent("PESANBARU");
                 intent.putStringArrayListExtra("DATANOTIF", list);
                 sendBroadcast(intent);
             }
-//            else {
-//                String title = data.getString("title");
-//                String message = data.getString("message");
-//                MyNotificationManager myNotificationManager = new MyNotificationManager(getApplicationContext());
-//                myNotificationManager.showStreamingNotification(title,message);
-//            }
             else {
                 String title = data.getString("title");
                 String message = data.getString("message");
@@ -98,6 +93,9 @@ public class EPCEEMService extends FirebaseMessagingService {
         collapsedView.setTextViewText(R.id.text_view_collapsed_1, title);
         collapsedView.setTextViewText(R.id.text_view_collapsed_2, message);
 
+        expandedView.setTextViewText(R.id.expanded_nama_kajian, title);
+        expandedView.setTextViewText(R.id.expanded_title, message);
+
         expandedView.setImageViewResource(R.id.image_view_expanded, R.drawable.bgnotif);
         expandedView.setOnClickPendingIntent(R.id.image_view_expanded, clickPendingIntent);
 
@@ -105,7 +103,6 @@ public class EPCEEMService extends FirebaseMessagingService {
                 .setSmallIcon(R.drawable.ic_ydig_notif)
                 .setCustomContentView(collapsedView)
                 .setCustomBigContentView(expandedView)
-                //.setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                 .build();
 
         notificationManagerCompat.notify(1, notification);

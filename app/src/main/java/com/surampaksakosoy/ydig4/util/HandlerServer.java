@@ -1,6 +1,7 @@
 package com.surampaksakosoy.ydig4.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,6 +19,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.surampaksakosoy.ydig4.util.PublicAddress.SEND_COMMENT_DATA;
 
 public class HandlerServer {
     private Context context;
@@ -56,6 +59,9 @@ public class HandlerServer {
                         if (String.valueOf(error).equals("com.android.volley.TimeoutError")){
                             Toast.makeText(context, "Tidak dapat menghubungi Server, Hubungi IT YDIG", Toast.LENGTH_SHORT).show();
                         }
+                        if (alamatServer.equals(SEND_COMMENT_DATA)){
+                            context.sendBroadcast(new Intent("errorsenddata"));
+                        }
                     }
                 }) {
             @Override
@@ -68,38 +74,4 @@ public class HandlerServer {
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
     }
-
-//    private String alamatServer() {
-//        String URL = "";
-//        switch (aktifitas) {
-//            case "LOGIN_DATA":
-//                URL = PublicAddress.POST_LOGIN;
-//                break;
-//            case "MAIN_LOGOUT":
-//                URL = PublicAddress.POST_LOGOUT;
-//                break;
-//            case "MAIN_SAVE_PHOTO":
-//                URL = PublicAddress.POST_SAVE_PHOTO;
-//                break;
-//            case "GET_HOME_DATA":
-//                URL = PublicAddress.GET_HOME_DATA;
-//                break;
-//            case "GET_MORE_DATA":
-//                URL = PublicAddress.GET_MORE_DATA;
-//                break;
-//            case "GET_PANDUAN":
-//                URL = PublicAddress.GET_PANDUAN;
-//                break;
-//            case "GET_UPDATE":
-//                URL = PublicAddress.GET_UPDATE;
-//                break;
-//            case "SEND_COMMENT_DATA":
-//                URL = PublicAddress.SEND_COMMENT_DATA;
-//                break;
-//            case "LOAD_COMMENT_DATA":
-//                URL = PublicAddress.LOAD_COMMENT_DATA;
-//                break;
-//        }
-//        return URL;
-//    }
 }

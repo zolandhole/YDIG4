@@ -6,6 +6,7 @@
     android:layout_marginEnd="10dp"
     android:layout_marginTop="5dp"
     android:padding="5dp"
+    android:id="@+id/layout_recycler"
     android:background="@drawable/back_putih"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">

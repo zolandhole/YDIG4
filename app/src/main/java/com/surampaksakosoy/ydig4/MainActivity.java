@@ -29,6 +29,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<ModelStreaming> modelStreaming;
     private EditText editTextPesan;
     private CardView cv_pesanBaru;
+    private RelativeLayout relPlayer;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -126,7 +128,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case "streamingError":
                     countError = countError+1;
                     if (countError <= 3){
-                        new MyTask().execute();
+                        if (!isMyServiceRunning()){
+                            new MyTask().execute();
+                        }
                     } else {
                         infokanKeUser("Streaming Terputus, silahkan ulangi kembali");
                         buttonPlay.setVisibility(View.VISIBLE);
@@ -139,21 +143,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ArrayList<String> dataPesan = intent.getStringArrayListExtra("DATANOTIF");
                     pesanBaruDatang(dataPesan);
                     break;
+                case "errorsenddata":
+                    infokanKeUser("Gagal mengirim pesan silakan coba lagi");
+                    editTextPesan.setEnabled(true);
+                    progressbar_send.setVisibility(View.GONE);
+                    btn_send.setVisibility(View.VISIBLE);
+                    break;
             }
 
         }
     };
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isMyServiceRunning()){
+            buttonPlay.setVisibility(View.GONE);
+            buttonStop.setVisibility(View.VISIBLE);
+        } else {
+            buttonStop.setVisibility(View.GONE);
+            buttonPlay.setVisibility(View.VISIBLE);
+        }
+    }
+
     private void pesanBaruDatang(ArrayList<String> dataPesan) {
         ModelStreaming item = (new ModelStreaming(
-                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5)
+                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5),dataPesan.get(6)
         ));
         int insertIndex = 0;
         modelStreaming.add(insertIndex, item);
         adapterStreaming.notifyItemInserted(insertIndex);
         int scrollPosition = linearLayoutManager.findFirstVisibleItemPosition();
-        Log.e(TAG, "pesanBaruDatang: " + scrollPosition);
-        if (scrollPosition == 0){
+        if (scrollPosition == 0 || dataPesan.get(6).equals(ID_LOGIN)){
             linearLayoutManager.scrollToPosition(0);
             cv_pesanBaru.setVisibility(View.GONE);
         } else {
@@ -178,6 +199,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         filter.addAction("lemot");
         filter.addAction("streamingError");
         filter.addAction("PESANBARU");
+        filter.addAction("errorsenddata");
         registerReceiver(broadcastReceiver, filter);
 
         ID_LOGIN = cekApakahUserPernahLogin();
@@ -244,8 +266,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
 
-
-        new MyTask().execute();
+        if (!isMyServiceRunning()){
+            new MyTask().execute();
+        }
         tampilkanFoto();
         loadingDataChatting();
     }
@@ -301,7 +324,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         isiData.getString("tanggal"),
                         isiData.getString("waktu"),
                         isiData.getString("id_login"),
-                        isiData.getString("photo")
+                        isiData.getString("photo"),
+                        isiData.getString("uniq_id")
                 ));
                 tampilkanDataChatting(list);
             } catch (JSONException e) {
@@ -318,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
 
             linearLayoutManager = new LinearLayoutManager(this);
-            adapterStreaming =new AdapterStreaming(modelStreaming, this);
+            adapterStreaming =new AdapterStreaming(modelStreaming, this, ID_LOGIN);
             streaming_recyclerview.setAdapter(adapterStreaming);
             streaming_recyclerview.setLayoutManager(linearLayoutManager);
             streaming_recyclerview.setItemAnimator(new DefaultItemAnimator());
@@ -370,6 +394,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         dbHandler = new DBHandler(this);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        relPlayer = findViewById(R.id.relPlayer);
         buttonPlay = findViewById(R.id.buttonPlay); buttonPlay.setOnClickListener(this);
         buttonStop = findViewById(R.id.buttonStop); buttonStop.setOnClickListener(this);
         progress_play = findViewById(R.id.progress_play);
@@ -387,6 +412,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cv_pesanBaru = findViewById(R.id.cv_pesan_baru); cv_pesanBaru.setOnClickListener(this);
 
         streaming_recyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
 
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -449,7 +475,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 @Override
                 public void onFailed(String result) {
                     if (!result.contains("berhasil")){
-                        Log.e(TAG, "onFailed: " + result);
+                        Log.e(TAG, "onFailed ubah status di server: " + result);
                     }
                 }
 
@@ -490,7 +516,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.streaming_sendpesan:
                 kirimPesan();
-
                 break;
             case R.id.cv_pesan_baru:
                 linearLayoutManager.scrollToPosition(0);
@@ -517,23 +542,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String waktu = tf.format(c);
 
         List<String> list = new ArrayList<>();
-        list.add(pesan);
         list.add(tanggal);
         list.add(waktu);
         list.add(ID_LOGIN);
-
+        list.add(pesan);
         HandlerServer handlerServer = new HandlerServer(this, PublicAddress.SEND_COMMENT_DATA);
         synchronized (this){
             handlerServer.sendDataToServer(new VolleyCallback() {
                 @Override
                 public void onFailed(String result) {
-                    Log.e(TAG, "onFailed: " + result);
                     if (!result.contains("berhasil")){
                         progressbar_send.setVisibility(View.GONE);
                         btn_send.setVisibility(View.VISIBLE);
                         editTextPesan.setEnabled(true);
                         Toast.makeText(MainActivity.this, "Gagal Mengirim Pesan, Silahkan Coba lagi", Toast.LENGTH_SHORT).show();
                     } else {
+                        progressbar_send.setVisibility(View.GONE);
+                        btn_send.setVisibility(View.VISIBLE);
                         editTextPesan.setText("");
                         editTextPesan.setEnabled(true);
                     }
