@@ -38,16 +38,20 @@ public class AdapterStreaming extends RecyclerView.Adapter<AdapterStreaming.Hold
     @Override
     public void onBindViewHolder(@NonNull AdapterStreaming.Holder holder, int position) {
         final ModelStreaming streaming = modelStreaming.get(position);
-        if (ID_LOGIN.equals(streaming.getUniq_id())){
-            holder.textViewDari.setText(R.string.anda);
+        if (!streaming.getId_login().equals("non")){
+            if (ID_LOGIN.equals(streaming.getUniq_id())){
+                holder.textViewDari.setText(R.string.anda);
 
+            } else {
+                holder.textViewDari.setText(streaming.getId_login());
+            }
+            holder.textViewJam.setText(streaming.getJam());
+            holder.textViewPesan.setText(streaming.getPesan());
+            if (streaming.getPhoto() != null){
+                Glide.with(context).load(streaming.getPhoto()).placeholder(R.drawable.ic_account).into(holder.photo);
+            }
         } else {
-            holder.textViewDari.setText(streaming.getId_login());
-        }
-        holder.textViewJam.setText(streaming.getJam());
-        holder.textViewPesan.setText(streaming.getPesan());
-        if (streaming.getPhoto() != null){
-            Glide.with(context).load(streaming.getPhoto()).placeholder(R.drawable.ic_account).into(holder.photo);
+            holder.layout_recycler.setVisibility(View.GONE);
         }
     }
 

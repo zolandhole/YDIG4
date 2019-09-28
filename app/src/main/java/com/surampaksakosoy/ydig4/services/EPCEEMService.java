@@ -55,7 +55,8 @@ public class EPCEEMService extends FirebaseMessagingService {
             JSONObject data = jsonObject.getJSONObject("data");
 
             String typeNotif = data.getString("typeNotif");
-            Log.e(TAG, "sendPushNotification: " + typeNotif);
+
+//            Log.e(TAG, "sendPushNotification: " + data);
             if (typeNotif.equals("streamingTanya")){
                 ArrayList<String> list = new ArrayList<>();
                 list.add(data.getString("id"));
@@ -67,6 +68,7 @@ public class EPCEEMService extends FirebaseMessagingService {
                 list.add(data.getString("uniq_id"));
                 Intent intent = new Intent("PESANBARU");
                 intent.putStringArrayListExtra("DATANOTIF", list);
+//                Log.e(TAG, "sendPushNotification: Streaming: " + list);
                 sendBroadcast(intent);
             }
             else {
@@ -96,6 +98,7 @@ public class EPCEEMService extends FirebaseMessagingService {
 
         collapsedView.setTextViewText(R.id.text_view_collapsed_1, title);
         collapsedView.setTextViewText(R.id.text_view_collapsed_2, message);
+        collapsedView.setOnClickPendingIntent(R.id.ll_colapsed_layout, clickPendingIntent);
 
         expandedView.setTextViewText(R.id.expanded_nama_kajian, title);
         expandedView.setTextViewText(R.id.expanded_title, message);

@@ -17,11 +17,13 @@
     <string name="stop">Stop</string>
     <string name="play">Play</string>
     <string name="streaming_status">Streaming Status</string>
-    <string name="koneksi_buruk">Koneksi buruk, sedang memuat Data …</string>
+    <string name="koneksi_buruk">Stream Buffering / memuat Data …</string>
     <string name="Mohon_tunggu">Mohon tunggu, sedang menghubungi server…</string>
     <string name="nama">nama</string>
     <string name="jam"> jam</string>
     <string name="pesan">pesan</string>
     <string name="pesan_baru">Pesan Baru</string>
     <string name="anda">anda</string>
+    <string name="ket_streaming_failed">Saat ini tidak ada Live On Air Streaming Radio Dialog Islam Garuda di 105.5 FM.</string>
+    <string name="mohon_maaf">Mohon Maaf</string>
 </resources>

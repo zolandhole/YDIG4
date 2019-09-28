@@ -1,5 +1,6 @@
 package com.surampaksakosoy.ydig4.services;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,11 +16,18 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.surampaksakosoy.ydig4.MainActivity;
+import com.surampaksakosoy.ydig4.R;
+import com.surampaksakosoy.ydig4.util.MyReceiver;
+
 import java.io.IOException;
 import java.util.Objects;
+
+import static com.surampaksakosoy.ydig4.util.App.CHANNEL_2;
 
 public class StreamingService extends Service implements
         MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
@@ -108,10 +116,10 @@ public class StreamingService extends Service implements
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e(TAG, "onStartCommand: StreamingService");
         initIfPhoneCall();
-//        String nama;
+        String nama;
         if (intent!=null){
-//            nama = Objects.requireNonNull(intent.getExtras()).getString("name");
-//            showNotification(nama);
+            nama = Objects.requireNonNull(intent.getExtras()).getString("name");
+            showNotification(nama);
             mediaPlayer.reset();
             if (!mediaPlayer.isPlaying()){
                 try {
@@ -125,7 +133,38 @@ public class StreamingService extends Service implements
         return START_STICKY;
     }
 
-//    private void showNotification(String nama) {
+    private void showNotification(String nama) {
+        Intent intentNotification = new Intent(this, MainActivity.class);
+        intentNotification.putExtra("streamingRadio", "streamingRadio");
+        intentNotification.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntentOpenApp = PendingIntent.getActivity(this, 0, intentNotification, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent intentPause = new Intent(this, MyReceiver.class);
+        intentPause.setAction("stop");
+        PendingIntent pendingIntentPause = PendingIntent.getBroadcast(this, 12345, intentPause, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent intentPlay = new Intent(this, MyReceiver.class);
+        intentPlay.setAction("start");
+        PendingIntent pendingIntentPlay = PendingIntent.getBroadcast(this, 12345, intentPlay, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent intentExit = new Intent(this, MyReceiver.class);
+        intentExit.setAction("exit");
+        PendingIntent pendingIntentExit = PendingIntent.getBroadcast(this, 12345, intentExit, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_2);
+        builder.setSmallIcon(R.drawable.ic_ydig_notif)
+                .setTicker("Mendengarkan " + nama)
+                .setOngoing(true)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setContentTitle(nama)
+                .setContentText("Dialog Islam Garuda")
+                .setContentIntent(pendingIntentOpenApp)
+                .addAction(android.R.drawable.ic_media_play, "PLAY", pendingIntentPlay)
+                .addAction(android.R.drawable.ic_media_pause, "PAUSE", pendingIntentPause)
+                .addAction(android.R.drawable.ic_delete,"STOP", pendingIntentExit)
+        ;
+
+        startForeground(115, builder.build());
 //        Intent intentNotification = new Intent(this, MainActivity.class);
 //        intentNotification.putExtra("streamingRadio", "streamingRadio");
 //        intentNotification.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -145,8 +184,8 @@ public class StreamingService extends Service implements
 //                .setPriority(2)
 //                .build();
 //
-//        notificationManagerCompat.notify(1,notification);
-//    }
+//        notificationManagerCompat.notify(2,builder);
+    }
 
     private void initIfPhoneCall(){
         Log.e(TAG, "initIfPhoneCall: ");

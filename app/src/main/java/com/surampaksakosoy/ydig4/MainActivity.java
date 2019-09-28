@@ -28,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -92,6 +93,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<ModelStreaming> modelStreaming;
     private EditText editTextPesan;
     private CardView cv_pesanBaru;
+    private LinearLayout ll_serverdown;
+    private LinearLayout ll_serverup;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -246,6 +249,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
+
+        ll_serverdown = findViewById(R.id.serverdown);
+        ll_serverup = findViewById(R.id.ll_serverup);
     }
 
     private void daftarkanBroadcast() {
@@ -344,6 +350,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             handlerServer.sendDataToServer(new VolleyCallback() {
                 @Override
                 public void onFailed(String result) {
+
                     infokanKeUser("Gagal mengambil data Chat");
                 }
 
@@ -355,6 +362,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
         private void parsingDataChatting(JSONArray jsonArray) {
+            Log.e(TAG, "parsingDataChatting: " + jsonArray);
         List<ModelStreaming> list = new ArrayList<>();
         JSONObject dataServer;
         for (int i=0; i< jsonArray.length(); i++){
@@ -378,17 +386,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
         private void tampilkanDataChatting(List<ModelStreaming> list) {
-        this.modelStreaming = list;
-        if (list.isEmpty()){
-            Log.e(TAG, "tampilkanDataChatting: " + list.size());
-        } else {
-
-            linearLayoutManager = new LinearLayoutManager(this);
-            adapterStreaming =new AdapterStreaming(modelStreaming, this, ID_LOGIN);
-            streaming_recyclerview.setAdapter(adapterStreaming);
-            streaming_recyclerview.setLayoutManager(linearLayoutManager);
-            streaming_recyclerview.setItemAnimator(new DefaultItemAnimator());
-        }
+            this.modelStreaming = list;
+            if (list.isEmpty()){
+                Log.e(TAG, "tampilkanDataChatting: " + list.size());
+            } else {
+                linearLayoutManager = new LinearLayoutManager(this);
+                adapterStreaming =new AdapterStreaming(modelStreaming, this, ID_LOGIN);
+                streaming_recyclerview.setAdapter(adapterStreaming);
+                streaming_recyclerview.setLayoutManager(linearLayoutManager);
+                streaming_recyclerview.setItemAnimator(new DefaultItemAnimator());
+            }
     }
 
     private void pesanBaruDatang(ArrayList<String> dataPesan) {
@@ -396,18 +403,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5),dataPesan.get(6)
         ));
         int insertIndex = 0;
-        modelStreaming.add(insertIndex, item);
-        adapterStreaming.notifyItemInserted(insertIndex);
-        int scrollPosition = linearLayoutManager.findFirstVisibleItemPosition();
-        if (scrollPosition == 0 || dataPesan.get(6).equals(ID_LOGIN)){
-            linearLayoutManager.scrollToPosition(0);
-            cv_pesanBaru.setVisibility(View.GONE);
+        if (modelStreaming!= null){
+            modelStreaming.add(insertIndex, item);
+            adapterStreaming.notifyItemInserted(insertIndex);
+            int scrollPosition = linearLayoutManager.findFirstVisibleItemPosition();
+            if (scrollPosition == 0 || dataPesan.get(6).equals(ID_LOGIN)){
+                linearLayoutManager.scrollToPosition(0);
+                cv_pesanBaru.setVisibility(View.GONE);
+            } else {
+                cv_pesanBaru.setVisibility(View.VISIBLE);
+            }
+            progressbar_send.setVisibility(View.GONE);
+            btn_send.setVisibility(View.VISIBLE);
+            editTextPesan.setEnabled(true);
         } else {
-            cv_pesanBaru.setVisibility(View.VISIBLE);
+            Log.e(TAG, "pesanBaruDatang: " + item);
         }
-        progressbar_send.setVisibility(View.GONE);
-        btn_send.setVisibility(View.VISIBLE);
-        editTextPesan.setEnabled(true);
     }
 
     @Override
@@ -587,7 +598,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 main_status_streaming.setText(R.string.Mohon_tunggu);
                 main_status_streaming.setBackgroundColor(getResources().getColor(R.color.darkGrey));
                 main_status_streaming.setVisibility(View.VISIBLE);
+                ll_serverdown.setVisibility(View.GONE);
+                ll_serverup.setVisibility(View.VISIBLE);
             } else {
+                ll_serverdown.setVisibility(View.VISIBLE);
+                ll_serverup.setVisibility(View.GONE);
                 Log.e(TAG, "onPostExecute: Server Maot");
                 buttonStop.setVisibility(View.GONE);
                 buttonPlay.setVisibility(View.VISIBLE);
