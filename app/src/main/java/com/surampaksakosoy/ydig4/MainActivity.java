@@ -1,6 +1,7 @@
 package com.surampaksakosoy.ydig4;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -14,6 +15,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import java.text.SimpleDateFormat;
@@ -202,8 +204,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     for (int i=0; i< jsonArray.length(); i++){
                         try {
                             dataServer = jsonArray.getJSONObject(i);
-                            if (Double.valueOf(VERSI) < Double.valueOf(dataServer.getString("version"))){
-                                Log.e(TAG, "onSuccess: Versi Beda, Phone Version:" + VERSI + " New Versi:" + dataServer.getString("version"));
+                            if (Integer.parseInt(VERSI) < Integer.parseInt(dataServer.getString("version"))){
+                                update_versi();
                             } else {
                                 Log.e(TAG, "onSuccess: Versi Sama");
                             }
@@ -362,29 +364,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
         private void parsingDataChatting(JSONArray jsonArray) {
-            Log.e(TAG, "parsingDataChatting: " + jsonArray);
-        List<ModelStreaming> list = new ArrayList<>();
-        JSONObject dataServer;
-        for (int i=0; i< jsonArray.length(); i++){
-            try {
-                dataServer = jsonArray.getJSONObject(i);
-                JSONObject isiData = dataServer.getJSONObject("data");
-                list.add(new ModelStreaming(
-                        Integer.parseInt(dataServer.getString("id")),
-                        isiData.getString("pesan"),
-                        isiData.getString("tanggal"),
-                        isiData.getString("waktu"),
-                        isiData.getString("id_login"),
-                        isiData.getString("photo"),
-                        isiData.getString("uniq_id")
-                ));
-                tampilkanDataChatting(list);
-            } catch (JSONException e) {
-                Log.e(TAG, "parsingDataChatting: exception: " + e);
-                e.printStackTrace();
+            List<ModelStreaming> list = new ArrayList<>();
+            JSONObject dataServer;
+            for (int i=0; i< jsonArray.length(); i++){
+                try {
+                    dataServer = jsonArray.getJSONObject(i);
+                    JSONObject isiData = dataServer.getJSONObject("data");
+                    list.add(new ModelStreaming(
+                            Integer.parseInt(dataServer.getString("id")),
+                            isiData.getString("pesan"),
+                            isiData.getString("tanggal"),
+                            isiData.getString("waktu"),
+                            isiData.getString("id_login"),
+                            isiData.getString("photo"),
+                            isiData.getString("uniq_id")
+                    ));
+                    tampilkanDataChatting(list);
+                } catch (JSONException e) {
+                    Log.e(TAG, "parsingDataChatting: exception: " + e);
+                    e.printStackTrace();
+                }
             }
         }
-    }
         private void tampilkanDataChatting(List<ModelStreaming> list) {
             this.modelStreaming = list;
             if (list.isEmpty()){
@@ -618,6 +619,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         View sbView = snackbar.getView();
         sbView.setBackgroundColor(ContextCompat.getColor(this.getApplicationContext(), R.color.merahmarun));
         snackbar.show();
+    }
+
+    private void update_versi(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.AlertDialogStyle);
+        builder.setMessage("Anda akan di arahkan ke PlayStore untuk pembaharuan aplikasi ")
+                .setTitle("Perbaharui Versi")
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Log.e(TAG, "onClick: OK");
+                    }
+                });
+        builder.setCancelable(false);
+        // Create the AlertDialog object and return it
+        builder.create();
+        builder.show();
     }
 
     private void jalankanServiceStreamig(){

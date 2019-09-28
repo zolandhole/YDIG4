@@ -79,33 +79,36 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void getAppVersion() {
-        List<String> list = new ArrayList<>();
-        list.add("0");
-        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.GET_VERSION);
-        synchronized (this){
-            handlerServer.sendDataToServer(new VolleyCallback() {
-                @Override
-                public void onFailed(String result) {
-                    Log.e(TAG, "onFailed: " + result);
-                }
+//        List<String> list = new ArrayList<>();
+//        list.add("0");
+//        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.GET_VERSION);
+//        synchronized (this){
+//            handlerServer.sendDataToServer(new VolleyCallback() {
+//                @Override
+//                public void onFailed(String result) {
+//                    Log.e(TAG, "onFailed: " + result);
+//                }
+//
+//                @Override
+//                public void onSuccess(JSONArray jsonArray) {
+//                    JSONObject dataServer;
+//                    for (int i=0; i< jsonArray.length(); i++){
+//                        try {
+//                            dataServer = jsonArray.getJSONObject(i);
+////                            JSONObject isiData = dataServer.getJSONObject("version");
+//                            Log.e(TAG, "onSuccess: Version: "+ dataServer.getString("version"));
+//                            VERSI = dataServer.getString("version");
+//                        } catch (JSONException e) {
+//                            Log.e(TAG, "exception: " + e);
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }, list);
+//        }
 
-                @Override
-                public void onSuccess(JSONArray jsonArray) {
-                    JSONObject dataServer;
-                    for (int i=0; i< jsonArray.length(); i++){
-                        try {
-                            dataServer = jsonArray.getJSONObject(i);
-//                            JSONObject isiData = dataServer.getJSONObject("version");
-                            Log.e(TAG, "onSuccess: Version: "+ dataServer.getString("version"));
-                            VERSI = dataServer.getString("version");
-                        } catch (JSONException e) {
-                            Log.e(TAG, "exception: " + e);
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }, list);
-        }
+        VERSI = String.valueOf(BuildConfig.VERSION_CODE);
+//        String versionName = BuildConfig.VERSION_NAME;
     }
 
     private void updateUI(FirebaseUser user) {
