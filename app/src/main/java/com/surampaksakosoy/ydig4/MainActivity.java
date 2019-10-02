@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -627,13 +629,40 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setTitle("Perbaharui Versi")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Log.e(TAG, "onClick: OK");
+                        try
+                        {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getApplicationContext().getPackageName())));
+                        }
+                        catch (ActivityNotFoundException exception)
+                        {
+                            Toast.makeText(MainActivity.this, "Aplikasi tidak ditemukan di Play Store", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
         builder.setCancelable(false);
         // Create the AlertDialog object and return it
         builder.create();
         builder.show();
+    }
+
+    private void tampilkanPromo(){
+        final Dialog promo = new Dialog(this);
+        promo.setContentView(R.layout.layout_promo);
+        CardView cardViewPromo = promo.findViewById(R.id.promo_cv);
+        cardViewPromo.setCardBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent));
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+            cardViewPromo.getBackground().setAlpha(0);
+        } else {
+            cardViewPromo.setBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent));
+        }
+        Button buttonTutup = promo.findViewById(R.id.promo_tutup);
+        buttonTutup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                promo.dismiss();
+            }
+        });
+        promo.show();
     }
 
     private void jalankanServiceStreamig(){

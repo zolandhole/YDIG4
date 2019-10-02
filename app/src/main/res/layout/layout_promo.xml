@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="10dp"
+    android:id="@+id/promo_cv"
+    style="@style/Promo">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/promo_image"
+            android:scaleType="centerCrop"
+            android:src="@drawable/promotion"
+            android:layout_width="match_parent"
+            android:layout_height="250dp"/>
+        <TextView
+            android:id="@+id/promo_judul"
+            android:layout_margin="10dp"
+            android:layout_below="@+id/promo_image"
+            android:layout_gravity="center"
+            android:text="Judul Promosi"
+            android:fontFamily="@font/robotobold"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/promo_kontent"
+            android:layout_margin="10dp"
+            android:layout_below="@+id/promo_judul"
+            android:layout_gravity="center"
+            android:text="Ini Adalah Kontent Dari Promosi Anda di Website dan kami akan merasakan indahnya dunia"
+            android:fontFamily="@font/robotolight"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/promo_tutup"
+            android:layout_centerHorizontal="true"
+            android:background="@null"
+            android:layout_below="@+id/promo_kontent"
+            android:text="Tutup"
+            android:textAllCaps="false"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
