@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "762637852761-2d1ons7ej51chqdutk04e00g4voirk32.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.surampaksakosoy.ydig4",
+            "certificate_hash": "41fd1d847c09a2bf470ea4899b6120dc2697d599"
+          }
+        },
+        {
           "client_id": "762637852761-sib82a692bu8p4rcftodafk5otc2he6g.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
