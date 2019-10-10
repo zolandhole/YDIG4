@@ -26,4 +26,7 @@
     <string name="anda">anda</string>
     <string name="ket_streaming_failed">Saat ini tidak ada Live On Air Streaming Radio Dialog Islam Garuda di 105.5 FM.</string>
     <string name="mohon_maaf">Mohon Maaf</string>
+    <string name="pertanyaan">Pertanyaan</string>
+    <string name="komentar">Komentar</string>
+    <string name="saran">Saran</string>
 </resources>

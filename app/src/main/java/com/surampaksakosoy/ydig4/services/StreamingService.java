@@ -100,6 +100,7 @@ public class StreamingService extends Service implements
         };
 
         AudioManager audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        assert audioManager != null;
         int mediaresult = audioManager.requestAudioFocus(onAudioFocusChangeListener,
                 AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
@@ -213,6 +214,7 @@ public class StreamingService extends Service implements
                     }
                 }
             };
+            assert telephonyManager != null;
             telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
         } else {
             if (mediaPlayer != null) {

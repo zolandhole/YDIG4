@@ -29,11 +29,14 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -84,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private String SUMBER_LOGIN, ID_LOGIN, NAMA, EMAIL, ADSID, TOKENFCM, VERSI;
     private DBHandler dbHandler;
-    private Button buttonPlay, buttonStop, btn_send;
+    private Button buttonPlay, buttonStop, btn_send, btn_pertanyaan, btn_komentar, btn_saran;
     private ProgressBar progress_play, progressbar_send;
     private TextView main_status_streaming, judul_kajian;
     private FirebaseAuth mAuth;
@@ -97,8 +100,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<ModelStreaming> modelStreaming;
     private EditText editTextPesan;
     private CardView cv_pesanBaru;
-    private LinearLayout ll_serverdown;
-    private LinearLayout ll_serverup;
+    private LinearLayout ll_serverdown, ll_serverup, ll_popup_sendbutton;
+    private RelativeLayout main_layout;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -119,6 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case "lemot":
                     String bufferCode = intent.getStringExtra("lemot");
+                    assert bufferCode != null;
                     if (bufferCode.equals("703")){
                         Log.e(TAG, "onReceive: Sedang buffering");
                         main_status_streaming.setText(R.string.koneksi_buruk);
@@ -146,6 +150,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case "PESANBARU":
                     ArrayList<String> dataPesan = intent.getStringArrayListExtra("DATANOTIF");
+                    assert dataPesan != null;
+                    Log.e(TAG, "onReceive: "+ dataPesan);
                     pesanBaruDatang(dataPesan);
                     break;
                 case "errorsenddata":
@@ -221,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initListener() {
         dbHandler = new DBHandler(this);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -228,6 +235,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         judul_kajian = findViewById(R.id.judul_kajian);
         buttonPlay = findViewById(R.id.buttonPlay); buttonPlay.setOnClickListener(this);
         buttonStop = findViewById(R.id.buttonStop); buttonStop.setOnClickListener(this);
+        btn_pertanyaan = findViewById(R.id.btn_pertanyaan); btn_pertanyaan.setOnClickListener(this);
+        btn_komentar = findViewById(R.id.btn_komentar); btn_komentar.setOnClickListener(this);
+        btn_saran = findViewById(R.id.btn_saran); btn_saran.setOnClickListener(this);
         progress_play = findViewById(R.id.progress_play);
         main_status_streaming = findViewById(R.id.main_status_streaming);
         mAuth = FirebaseAuth.getInstance();
@@ -256,7 +266,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         ll_serverdown = findViewById(R.id.serverdown);
         ll_serverup = findViewById(R.id.ll_serverup);
+        ll_popup_sendbutton = findViewById(R.id.popup_sendbutton);
+        main_layout = findViewById(R.id.main_layout);
+        main_layout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                hidePopupandKeyboard(v);
+                return false;
+            }
+        });
+        streaming_recyclerview.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                hidePopupandKeyboard(v);
+                return false;
+            }
+        });
     }
+
+
 
     private void daftarkanBroadcast() {
         IntentFilter filter = new IntentFilter();
@@ -441,15 +469,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 sendBroadcast(intent);
                 break;
             case R.id.streaming_sendpesan:
-                kirimPesan();
+                ll_popup_sendbutton.setVisibility(View.VISIBLE);
+//                kirimPesan();
                 break;
             case R.id.cv_pesan_baru:
                 linearLayoutManager.scrollToPosition(0);
                 cv_pesanBaru.setVisibility(View.GONE);
                 break;
+            case R.id.btn_pertanyaan:
+                kirimPesan("1#");
+                break;
+            case R.id.btn_komentar:
+                kirimPesan("2#");
+                break;
+            case R.id.btn_saran:
+                kirimPesan("3#");
+                break;
         }
     }
-        private void kirimPesan() {
+
+    private void hidePopupandKeyboard(View v) {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (inputMethodManager != null){
+            inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+        ll_popup_sendbutton.setVisibility(View.GONE);
+    }
+
+        private void kirimPesan(String s) {
+        ll_popup_sendbutton.setVisibility(View.GONE);
         String pesan = editTextPesan.getText().toString();
         if (!pesan.equals("")){
             progressbar_send.setVisibility(View.VISIBLE);
@@ -462,6 +510,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String waktu = tf.format(c);
 
             List<String> list = new ArrayList<>();
+            if (s!=null){
+                list.add(s);
+            }
             list.add(tanggal);
             list.add(waktu);
             list.add(ID_LOGIN);
@@ -563,6 +614,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean isMyServiceRunning() {
         ActivityManager manager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+        assert manager != null;
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (StreamingService.class.getName().equals(service.service.getClassName())) {
                 return true;

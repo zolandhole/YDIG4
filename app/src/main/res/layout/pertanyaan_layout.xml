@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/popup_sendbutton"
+    android:visibility="gone"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_above="@+id/form_pesan"
+    android:padding="10dp"
+    android:layout_marginBottom="10dp"
+    android:layout_height="wrap_content">
+
+    <Button
+        android:id="@+id/btn_pertanyaan"
+        android:layout_marginTop="5dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:background="@drawable/button_biru"
+        android:text="@string/pertanyaan"
+        android:textAllCaps="false"
+        android:fontFamily="@font/robotolight"
+        android:textColor="@color/putih"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/btn_komentar"
+        android:layout_marginTop="5dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:background="@drawable/button_hitam"
+        android:text="@string/komentar"
+        android:textAllCaps="false"
+        android:fontFamily="@font/robotolight"
+        android:textColor="@color/putih"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/btn_saran"
+        android:layout_marginTop="5dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:textAllCaps="false"
+        android:background="@drawable/button_orange"
+        android:text="@string/saran"
+        android:fontFamily="@font/robotolight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
