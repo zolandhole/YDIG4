@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // UNTUK MENDAPATKAN KEY FACEBOOK
+        // UNTUK MENDAPATKAN KEY FACEBOOKs
 //        try {
 //            PackageInfo info = getPackageManager().getPackageInfo(
 //                    "com.surampaksakosoy.ydig4",
