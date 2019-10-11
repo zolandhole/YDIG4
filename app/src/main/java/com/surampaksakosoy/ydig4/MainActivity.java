@@ -183,6 +183,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (ID_LOGIN == null){
             keLogin();
         } else {
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+
+
             getAppVersion();
             collectPhoneData();
 

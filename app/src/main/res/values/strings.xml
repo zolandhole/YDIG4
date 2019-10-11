@@ -29,4 +29,6 @@
     <string name="pertanyaan">Pertanyaan</string>
     <string name="komentar">Komentar</string>
     <string name="saran">Saran</string>
+    <string name="tentang_kami">Tentang YDIG</string>
+    <string name="profile">Profil</string>
 </resources>
