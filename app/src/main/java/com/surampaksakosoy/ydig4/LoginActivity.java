@@ -261,7 +261,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             login_progressBar.setVisibility(View.GONE);
                         } else {
                             login_progressBar.setVisibility(View.GONE);
-                            keMainActivity();
+                            keHomeActivity();
                         }
                     }
 
@@ -278,7 +278,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     }
 
-    private void keMainActivity() {
+    private void keHomeActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();

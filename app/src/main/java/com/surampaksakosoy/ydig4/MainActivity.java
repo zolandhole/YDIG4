@@ -185,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             Intent intent = new Intent(this, HomeActivity.class);
             startActivity(intent);
+            finish();
 
 
             getAppVersion();
