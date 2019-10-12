@@ -25,6 +25,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.surampaksakosoy.ydig4.adapters.pagerAdapter;
 import com.surampaksakosoy.ydig4.fragments.ProfileFragment;
+import com.surampaksakosoy.ydig4.fragments.StreamingFragment;
 import com.surampaksakosoy.ydig4.util.DBHandler;
 import com.surampaksakosoy.ydig4.util.HandlerServer;
 import com.surampaksakosoy.ydig4.util.PublicAddress;
@@ -39,7 +40,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity
-implements ProfileFragment.ListenerProfile {
+implements ProfileFragment.ListenerProfile, StreamingFragment.ListenerStreaming {
 
     private static final String TAG = "HomeActivity";
     private TextView titleBar, customTab0, customTab1, customTab2;
@@ -112,47 +113,11 @@ implements ProfileFragment.ListenerProfile {
         googleSignInClient = GoogleSignIn.getClient(this, gso);
     }
 
-    private String checkLocalUserDB() {
-        ArrayList<HashMap<String, String>> userDB = dbHandler.getUser(1);
-        for (Map<String,String> map : userDB){
-            SUMBERLOGIN = map.get("sumber_login");
-            IDLOGIN = map.get("id_login");
-            NAMA = map.get("nama");
-            EMAIL = map.get("email");
-            VERSI = map.get("version");
-        }
-        return IDLOGIN;
-    }
-
-
     private void setupToolbar() {
         Toolbar toolbar_home = findViewById(R.id.toolbar_home);
         setSupportActionBar(toolbar_home);
         Objects.requireNonNull(getSupportActionBar()).setTitle("");
         titleBar = findViewById(R.id.titleBar);
-    }
-
-    @SuppressLint("InflateParams")
-    private void setupTabLayout() {
-        TabLayout tabLayout = findViewById(R.id.tablayoutFragment);
-
-        customTab0 = (TextView) LayoutInflater.from(HomeActivity.this).inflate(R.layout.layout_tab, null);
-        customTab0.setText(R.string.radio_streaming);
-        tabLayout.addTab(tabLayout.newTab());
-        Objects.requireNonNull(tabLayout.getTabAt(0)).setCustomView(customTab0);
-
-        customTab1 = (TextView) LayoutInflater.from(HomeActivity.this).inflate(R.layout.layout_tab, null);
-        customTab1.setText(R.string.tentang_kami);
-        tabLayout.addTab(tabLayout.newTab());
-        Objects.requireNonNull(tabLayout.getTabAt(1)).setCustomView(customTab1);
-
-        customTab2 = (TextView) LayoutInflater.from(HomeActivity.this).inflate(R.layout.layout_tab, null);
-        customTab2.setText(R.string.profile);
-        tabLayout.addTab(tabLayout.newTab());
-        Objects.requireNonNull(tabLayout.getTabAt(2)).setCustomView(customTab2);
-
-        setupViewPager(tabLayout);
-
     }
 
     private void setupViewPager(TabLayout tabLayout) {
@@ -210,13 +175,48 @@ implements ProfileFragment.ListenerProfile {
         });
     }
 
-    @Override
-    public void inputProfile(CharSequence input) {
-        if (input.equals("logout")){
-            backToLoginActivity();
-        }
+    private void infokanKeUser(String keterangan) {
+        CoordinatorLayout mRoot =this.findViewById(R.id.layout_main);
+        Snackbar snackbar = Snackbar.make(mRoot, keterangan, Snackbar.LENGTH_SHORT);
+        View sbView = snackbar.getView();
+        sbView.setBackgroundColor(ContextCompat.getColor(this.getApplicationContext(), R.color.merahmarun));
+        snackbar.show();
     }
 
+    private String checkLocalUserDB() {
+        ArrayList<HashMap<String, String>> userDB = dbHandler.getUser(1);
+        for (Map<String,String> map : userDB){
+            SUMBERLOGIN = map.get("sumber_login");
+            IDLOGIN = map.get("id_login");
+            NAMA = map.get("nama");
+            EMAIL = map.get("email");
+            VERSI = map.get("version");
+        }
+        return IDLOGIN;
+    }
+
+    @SuppressLint("InflateParams")
+    private void setupTabLayout() {
+        TabLayout tabLayout = findViewById(R.id.tablayoutFragment);
+
+        customTab0 = (TextView) LayoutInflater.from(HomeActivity.this).inflate(R.layout.layout_tab, null);
+        customTab0.setText(R.string.radio_streaming);
+        tabLayout.addTab(tabLayout.newTab());
+        Objects.requireNonNull(tabLayout.getTabAt(0)).setCustomView(customTab0);
+
+        customTab1 = (TextView) LayoutInflater.from(HomeActivity.this).inflate(R.layout.layout_tab, null);
+        customTab1.setText(R.string.tentang_kami);
+        tabLayout.addTab(tabLayout.newTab());
+        Objects.requireNonNull(tabLayout.getTabAt(1)).setCustomView(customTab1);
+
+        customTab2 = (TextView) LayoutInflater.from(HomeActivity.this).inflate(R.layout.layout_tab, null);
+        customTab2.setText(R.string.profile);
+        tabLayout.addTab(tabLayout.newTab());
+        Objects.requireNonNull(tabLayout.getTabAt(2)).setCustomView(customTab2);
+
+        setupViewPager(tabLayout);
+
+    }
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
@@ -234,12 +234,24 @@ implements ProfileFragment.ListenerProfile {
             }
         }, 2000);
     }
+    @Override
+    public void inputStreaming(CharSequence input) {
+        if (input.equals("nostreaming")){
+            infokanKeUser("Sumber streaming tidak ditemukan");
+        } else if (input.equals("streamingError")){
+            infokanKeUser("Streaming Terputus, silahkan ulangi kembali");
+        }
+    }
+    @Override
+    public void inputProfile(CharSequence input) {
+        if (input.equals("logout")){
+            backToLoginActivity();
+        }
+    }
 
-    private void infokanKeUser(String keterangan) {
-        CoordinatorLayout mRoot =this.findViewById(R.id.layout_main);
-        Snackbar snackbar = Snackbar.make(mRoot, keterangan, Snackbar.LENGTH_SHORT);
-        View sbView = snackbar.getView();
-        sbView.setBackgroundColor(ContextCompat.getColor(this.getApplicationContext(), R.color.merahmarun));
-        snackbar.show();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        sendBroadcast(new Intent("exit"));
     }
 }

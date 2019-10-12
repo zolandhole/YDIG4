@@ -176,27 +176,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         initListener();
-        daftarkanBroadcast();
+//        daftarkanBroadcast();
 
         //pengecekan User Login
         ID_LOGIN = cekApakahUserPernahLogin();
         if (ID_LOGIN == null){
             keLogin();
         } else {
+            getAppVersion();
+            collectPhoneData();
             Intent intent = new Intent(this, HomeActivity.class);
             startActivity(intent);
             finish();
 
 
-            getAppVersion();
-            collectPhoneData();
+
 
             //JalanKan Service Streaming
-            if (!isMyServiceRunning()){
-                new MyTask().execute();
-            }
+//            if (!isMyServiceRunning()){
+//                new MyTask().execute();
+//            }
 
-            loadingDataChatting();
+//            loadingDataChatting();
         }
     }
 
@@ -329,6 +330,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Subscribe topic fcm
         FirebaseMessaging.getInstance().subscribeToTopic("STREAMING_RADIO");
         FirebaseMessaging.getInstance().subscribeToTopic("streamingTanya");
+        FirebaseMessaging.getInstance().subscribeToTopic("LIVEKAJIAN");
 
 
         // Get Photo Profile
@@ -764,7 +766,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        sendBroadcast(new Intent("exit"));
-        unregisterReceiver(broadcastReceiver);
+//        sendBroadcast(new Intent("exit"));
+//        unregisterReceiver(broadcastReceiver);
     }
 }

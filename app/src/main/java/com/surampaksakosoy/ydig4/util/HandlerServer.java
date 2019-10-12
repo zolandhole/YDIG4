@@ -75,4 +75,36 @@ public class HandlerServer {
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(stringRequest);
     }
+
+    public void getStatusServer(final VolleyCallback callback) {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, alamatServer,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            Log.e(TAG, "onResponse: " + response);
+                            callback.onFailed(jsonObject.getString("activestreams"));
+                        } catch (JSONException e) {
+                            callback.onFailed(String.valueOf(e));
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, "onErrorResponse: " + error);
+                        if (String.valueOf(error).equals("com.android.volley.TimeoutError")){
+                            Toast.makeText(context, "Tidak dapat menghubungi Server, Hubungi IT YDIG", Toast.LENGTH_SHORT).show();
+                        }
+                        if (alamatServer.equals(SEND_COMMENT_DATA)){
+                            context.sendBroadcast(new Intent("errorsenddata"));
+                        }
+                    }
+                }) {
+        };
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(stringRequest);
+    }
 }

@@ -55,10 +55,8 @@ public class EPCEEMService extends FirebaseMessagingService {
             JSONObject data = jsonObject.getJSONObject("data");
 
             String typeNotif = data.getString("typeNotif");
-
-//            Log.e(TAG, "sendPushNotification: " + data);
+            ArrayList<String> list = new ArrayList<>();
             if (typeNotif.equals("streamingTanya")){
-                ArrayList<String> list = new ArrayList<>();
                 list.add(data.getString("id"));
                 list.add(data.getString("pesan"));
                 list.add(data.getString("tanggal"));
@@ -70,16 +68,19 @@ public class EPCEEMService extends FirebaseMessagingService {
                 intent.putStringArrayListExtra("DATANOTIF", list);
 //                Log.e(TAG, "sendPushNotification: Streaming: " + list);
                 sendBroadcast(intent);
-            }
-            else {
-                String title = data.getString("title");
-                String message = data.getString("message");
+            } else if (typeNotif.equals("broadcastKajianRadio")){
+                String title = data.getString("kajian");
+                String message = "Bersama " + data.getString("pemateri");
                 Intent intentdatakajian = new Intent("datakajian");
                 intentdatakajian.putExtra("title", title);
                 intentdatakajian.putExtra("message", message);
                 sendBroadcast(intentdatakajian);
                 showNotificationInfo(title, message);
-            }
+
+                Intent intent = new Intent("getDataKajian");
+                intent.putExtra("idstreamingtitle", data.getString("id"));
+                sendBroadcast(intent);
+             }
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "sendPushNotification: " + e);
@@ -102,7 +103,6 @@ public class EPCEEMService extends FirebaseMessagingService {
 
         expandedView.setTextViewText(R.id.expanded_nama_kajian, title);
         expandedView.setTextViewText(R.id.expanded_title, message);
-
         expandedView.setImageViewResource(R.id.image_view_expanded, R.drawable.bgnotif);
         expandedView.setOnClickPendingIntent(R.id.image_view_expanded, clickPendingIntent);
 

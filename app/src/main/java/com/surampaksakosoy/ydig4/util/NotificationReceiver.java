@@ -7,6 +7,7 @@ import android.util.Log;
 
 import androidx.core.app.NotificationManagerCompat;
 
+import com.surampaksakosoy.ydig4.HomeActivity;
 import com.surampaksakosoy.ydig4.MainActivity;
 
 public class NotificationReceiver extends BroadcastReceiver {
@@ -17,7 +18,7 @@ public class NotificationReceiver extends BroadcastReceiver {
 
         Log.e(TAG, "onReceive: " + intent);
 
-        Intent i = new Intent(context, MainActivity.class);
+        Intent i = new Intent(context, HomeActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(i);
 

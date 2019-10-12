@@ -12,4 +12,5 @@ public class PublicAddress {
     public static final String LOAD_COMMENT_DATA = "http://122.248.39.157:12345/ydig/streaming/load_data";
     public static final String SAVE_PHONE_DATA = "http://122.248.39.157:12345/ydig/user/save_phone_data";
     public static final String GET_VERSION = "http://122.248.39.157:12345/ydig/version/get_version_app";
+    public static final String GET_STATUS_SERVER = "http://122.248.39.157:8000/statistics?json=1";
 }
