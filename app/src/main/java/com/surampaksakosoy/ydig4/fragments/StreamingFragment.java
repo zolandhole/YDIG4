@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +27,11 @@ import com.surampaksakosoy.ydig4.util.PublicAddress;
 import com.surampaksakosoy.ydig4.util.VolleyCallback;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class StreamingFragment extends Fragment implements View.OnClickListener {
@@ -34,6 +40,8 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
     private ListenerStreaming listener;
     private Button buttonPlay, buttonStop;
     private ProgressBar progress_play;
+    private TextView judul_kajian, pemateri;
+    private String IDKAJIAN = null;
 
 
     public interface ListenerStreaming{
@@ -73,6 +81,8 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         buttonPlay = view.findViewById(R.id.buttonPlay); buttonPlay.setOnClickListener(this);
         buttonStop = view.findViewById(R.id.buttonStop); buttonStop.setOnClickListener(this);
         progress_play = view.findViewById(R.id.progress_play);
+        judul_kajian = view.findViewById(R.id.judul_kajian);
+        pemateri = view.findViewById(R.id.pemateri);
         jalankanStreaming();
         return view;
     }
@@ -241,11 +251,44 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                     Log.e(TAG, "onReceive: " + countError);
                     break;
                 case "getDataKajian":
-                    intent.getStringExtra("idstreamingtitle");
-                    Log.e(TAG, "onReceive: "+ intent.getStringExtra("idstreamingtitle"));
+                    IDKAJIAN = intent.getStringExtra("idstreamingtitle");
+                    getInfoKajian();
                     break;
             }
-
         }
     };
+
+    private void getInfoKajian() {
+        if (IDKAJIAN!=null){
+            List<String> list =new ArrayList<>();
+            list.add(IDKAJIAN);
+            HandlerServer handlerServer = new HandlerServer(Objects.requireNonNull(getActivity()).getApplicationContext(), PublicAddress.GET_INFO_KAJIAN);
+            synchronized (this){
+                handlerServer.sendDataToServer(new VolleyCallback() {
+                    @Override
+                    public void onFailed(String result) {
+                        Log.e(TAG, "onFailed: "+ result);
+                        judul_kajian.setVisibility(View.GONE);
+                        pemateri.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onSuccess(JSONArray jsonArray) {
+                        JSONObject jsonObject;
+                        try {
+                            jsonObject = jsonArray.getJSONObject(0);
+                            String data_kajian = jsonObject.getString("kajian");
+                            String data_pemateri = jsonObject.getString("pemateri");
+                            judul_kajian.setText(data_kajian);
+                            pemateri.setText(data_pemateri);
+                            judul_kajian.setVisibility(View.VISIBLE);
+                            pemateri.setVisibility(View.VISIBLE);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, list);
+            }
+        }
+    }
 }

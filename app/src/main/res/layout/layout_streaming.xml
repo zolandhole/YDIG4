@@ -16,8 +16,7 @@
             android:textSize="16sp"
             android:fontFamily="@font/robotoregular"
             android:textAlignment="textStart"
-            android:text="@string/judul_kajian"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
@@ -26,8 +25,7 @@
             android:id="@+id/pemateri"
             android:fontFamily="@font/robotoregular"
             android:textAlignment="textStart"
-            android:text="@string/pemateri"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
