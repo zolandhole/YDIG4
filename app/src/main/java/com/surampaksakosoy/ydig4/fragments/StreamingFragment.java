@@ -101,6 +101,42 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
     public void onResume() {
         super.onResume();
         daftarkanBroadcast();
+        if (judul_kajian.getText().equals("")){
+            getTitleStreaming();
+        }
+    }
+
+    private void getTitleStreaming() {
+        HandlerServer handlerServer = new HandlerServer(Objects.requireNonNull(getActivity()).getApplicationContext(), PublicAddress.GET_TITLE_KAJIAN);
+        synchronized (this){
+            handlerServer.getStatusServer(new VolleyCallback() {
+                @Override
+                public void onFailed(String result) {
+                    if (result.equals("kosong")){
+                        judul_kajian.setVisibility(View.GONE);
+                        pemateri.setVisibility(View.GONE);
+                    } else {
+                        Log.e(TAG, "onFailed: "+ result);
+                    }
+                }
+
+                @Override
+                public void onSuccess(JSONArray jsonArray) {
+                    JSONObject jsonObject;
+                    try {
+                        jsonObject = jsonArray.getJSONObject(0);
+                        String data_kajian = jsonObject.getString("kajian");
+                        String data_pemateri = jsonObject.getString("pemateri");
+                        judul_kajian.setText(data_kajian);
+                        pemateri.setText(data_pemateri);
+                        judul_kajian.setVisibility(View.VISIBLE);
+                        pemateri.setVisibility(View.VISIBLE);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -290,5 +326,12 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                 }, list);
             }
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        judul_kajian.setText("");
+        judul_kajian.setVisibility(View.GONE);
     }
 }

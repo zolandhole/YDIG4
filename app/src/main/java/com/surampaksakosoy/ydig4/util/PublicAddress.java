@@ -14,4 +14,5 @@ public class PublicAddress {
     public static final String GET_VERSION = "http://122.248.39.157:12345/ydig/version/get_version_app";
     public static final String GET_STATUS_SERVER = "http://122.248.39.157:8000/statistics?json=1";
     public static final String GET_INFO_KAJIAN = "http://122.248.39.157:12345/ydig/streamingtitle/get_info_kajian";
+    public static final String GET_TITLE_KAJIAN = "http://122.248.39.157:12345/ydig/streamingtitle/get_title_kajian";
 }

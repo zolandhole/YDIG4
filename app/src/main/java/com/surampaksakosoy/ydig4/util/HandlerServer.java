@@ -82,9 +82,18 @@ public class HandlerServer {
                     @Override
                     public void onResponse(String response) {
                         try {
-                            JSONObject jsonObject = new JSONObject(response);
                             Log.e(TAG, "onResponse: " + response);
-                            callback.onFailed(jsonObject.getString("activestreams"));
+                            JSONObject jsonObject = new JSONObject(response);
+                            if (alamatServer.equals(PublicAddress.GET_STATUS_SERVER)){
+                                callback.onFailed(jsonObject.getString("activestreams"));
+                            } else {
+                                if (jsonObject.optString("error").equals("false")){
+                                    JSONArray jsonArray = jsonObject.getJSONArray("pesan");
+                                    callback.onSuccess(jsonArray);
+                                } else {
+                                    callback.onFailed(jsonObject.getString("pesan"));
+                                }
+                            }
                         } catch (JSONException e) {
                             callback.onFailed(String.valueOf(e));
                             e.printStackTrace();
@@ -94,13 +103,6 @@ public class HandlerServer {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "onErrorResponse: " + error);
-                        if (String.valueOf(error).equals("com.android.volley.TimeoutError")){
-                            Toast.makeText(context, "Tidak dapat menghubungi Server, Hubungi IT YDIG", Toast.LENGTH_SHORT).show();
-                        }
-                        if (alamatServer.equals(SEND_COMMENT_DATA)){
-                            context.sendBroadcast(new Intent("errorsenddata"));
-                        }
                     }
                 }) {
         };

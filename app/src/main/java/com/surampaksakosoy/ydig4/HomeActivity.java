@@ -44,7 +44,7 @@ implements ProfileFragment.ListenerProfile, StreamingFragment.ListenerStreaming 
 
     private static final String TAG = "HomeActivity";
     private TextView titleBar, customTab0, customTab1, customTab2;
-    private String IDLOGIN, SUMBERLOGIN, NAMA, EMAIL, VERSI;
+    private String IDLOGIN, SUMBERLOGIN;
     private DBHandler dbHandler;
     private FirebaseAuth firebaseAuth;
     private GoogleSignInClient googleSignInClient;
@@ -188,9 +188,9 @@ implements ProfileFragment.ListenerProfile, StreamingFragment.ListenerStreaming 
         for (Map<String,String> map : userDB){
             SUMBERLOGIN = map.get("sumber_login");
             IDLOGIN = map.get("id_login");
-            NAMA = map.get("nama");
-            EMAIL = map.get("email");
-            VERSI = map.get("version");
+//            NAMA = map.get("nama");
+//            EMAIL = map.get("email");
+//            VERSI = map.get("version");
         }
         return IDLOGIN;
     }
