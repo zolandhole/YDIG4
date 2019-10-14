@@ -19,8 +19,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.surampaksakosoy.ydig4.R;
+import com.surampaksakosoy.ydig4.adapters.AdapterStreaming;
+import com.surampaksakosoy.ydig4.models.ModelStreaming;
 import com.surampaksakosoy.ydig4.services.StreamingService;
 import com.surampaksakosoy.ydig4.util.HandlerServer;
 import com.surampaksakosoy.ydig4.util.PublicAddress;
@@ -34,6 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class StreamingFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "StreamingFragment";
@@ -41,8 +48,11 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
     private Button buttonPlay, buttonStop;
     private ProgressBar progress_play;
     private TextView judul_kajian, pemateri;
-    private String IDKAJIAN = null;
-
+    private CircleImageView ustad_photo;
+    private List<ModelStreaming> modelStreaming;
+    private LinearLayoutManager linearLayoutManager;
+    private AdapterStreaming adapterStreaming;
+    private RecyclerView streaming_recyclerview;
 
     public interface ListenerStreaming{
         void inputStreaming(CharSequence input);
@@ -83,6 +93,8 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         progress_play = view.findViewById(R.id.progress_play);
         judul_kajian = view.findViewById(R.id.judul_kajian);
         pemateri = view.findViewById(R.id.pemateri);
+        ustad_photo = view.findViewById(R.id.ustad_photo);
+        streaming_recyclerview = view.findViewById(R.id.streaming_recyclerview);
         jalankanStreaming();
         return view;
     }
@@ -115,6 +127,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                     if (result.equals("kosong")){
                         judul_kajian.setVisibility(View.GONE);
                         pemateri.setVisibility(View.GONE);
+                        ustad_photo.setVisibility(View.GONE);
                     } else {
                         Log.e(TAG, "onFailed: "+ result);
                     }
@@ -131,6 +144,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                         pemateri.setText(data_pemateri);
                         judul_kajian.setVisibility(View.VISIBLE);
                         pemateri.setVisibility(View.VISIBLE);
+                        ustad_photo.setVisibility(View.VISIBLE);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -221,7 +235,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
     private void jalankanServiceStreamig(){
 
         Bundle bundle = new Bundle();
-        bundle.putString("url", "http://122.248.39.157:8000");
+        bundle.putString("url", "http://122.248.39.157:8020");
         bundle.putString("name", "Radio Streaming On Air");
         Intent intent = new Intent(Objects.requireNonNull(getActivity()).getApplicationContext(), StreamingService.class);
         intent.putExtras(bundle);
@@ -237,6 +251,60 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         filter.addAction("getDataKajian");
         Objects.requireNonNull(getActivity()).registerReceiver(broadcastReceiver, filter);
     }
+    private void loadingDataChatting() {
+        List<String> list =new ArrayList<>();
+        list.add("0");
+        HandlerServer handlerServer = new HandlerServer(Objects.requireNonNull(getActivity()).getApplicationContext(), PublicAddress.LOAD_COMMENT_DATA);
+        synchronized (this){
+            handlerServer.sendDataToServer(new VolleyCallback() {
+                @Override
+                public void onFailed(String result) {
+                    listener.inputStreaming("chatgagal");
+                }
+
+                @Override
+                public void onSuccess(JSONArray jsonArray) {
+                    parsingDataChatting(jsonArray);
+                }
+            }, list);
+        }
+    }
+    private void parsingDataChatting(JSONArray jsonArray) {
+        List<ModelStreaming> list = new ArrayList<>();
+        JSONObject dataServer;
+        for (int i=0; i< jsonArray.length(); i++){
+            try {
+                dataServer = jsonArray.getJSONObject(i);
+                JSONObject isiData = dataServer.getJSONObject("data");
+                list.add(new ModelStreaming(
+                        Integer.parseInt(dataServer.getString("id")),
+                        isiData.getString("pesan"),
+                        isiData.getString("tanggal"),
+                        isiData.getString("waktu"),
+                        isiData.getString("id_login"),
+                        isiData.getString("photo"),
+                        isiData.getString("uniq_id")
+                ));
+                tampilkanDataChatting(list);
+            } catch (JSONException e) {
+                Log.e(TAG, "parsingDataChatting: exception: " + e);
+                e.printStackTrace();
+            }
+        }
+    }
+    private void tampilkanDataChatting(List<ModelStreaming> list) {
+        this.modelStreaming = list;
+        if (list.isEmpty()){
+            Log.e(TAG, "tampilkanDataChatting: " + list.size());
+        } else {
+            linearLayoutManager = new LinearLayoutManager(Objects.requireNonNull(getActivity()).getApplicationContext());
+//            adapterStreaming =new AdapterStreaming(modelStreaming, this, ID_LOGIN);
+            streaming_recyclerview.setAdapter(adapterStreaming);
+            streaming_recyclerview.setLayoutManager(linearLayoutManager);
+            streaming_recyclerview.setItemAnimator(new DefaultItemAnimator());
+        }
+    }
+
 
     private int countError = 0;
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -250,6 +318,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                     progress_play.setVisibility(View.GONE);
                     buttonStop.setVisibility(View.VISIBLE);
                     buttonPlay.setVisibility(View.GONE);
+                    loadingDataChatting();
                     break;
                 case "mediastoped":
                     buttonStop.setVisibility(View.GONE);
@@ -260,16 +329,37 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                     String bufferCode = intent.getStringExtra("lemot");
                     assert bufferCode != null;
                     if (bufferCode.equals("703")){
-                        Log.e(TAG, "onReceive: Sedang buffering");
+                        Log.e(TAG, "onReceive: Sedang buffering 703");
                         progress_play.setVisibility(View.VISIBLE);
                         buttonPlay.setVisibility(View.GONE);
                         buttonStop.setVisibility(View.GONE);
+                        HandlerServer handlerServer = new HandlerServer(Objects.requireNonNull(getActivity()).getApplicationContext(), PublicAddress.GET_STATUS_SERVER);
+                        handlerServer.getStatusServer(new VolleyCallback() {
+                            @Override
+                            public void onFailed(String result) {
+                                if (result.equals("0")){
+                                    getActivity().sendBroadcast(new Intent("exit"));
+                                    listener.inputStreaming("kajianberakhir");
+                                }
+                            }
+
+                            @Override
+                            public void onSuccess(JSONArray jsonArray) {
+                                Log.e(TAG, "onSuccess: " + jsonArray);
+                            }
+                        });
                     }
                     if (bufferCode.equals("702")){
-                        Log.e(TAG, "onReceive: Buffer Completed");
+                        Log.e(TAG, "onReceive: Buffer Completed 702");
                         progress_play.setVisibility(View.GONE);
-                        buttonPlay.setVisibility(View.VISIBLE);
-                        buttonStop.setVisibility(View.GONE);
+                        buttonPlay.setVisibility(View.GONE);
+                        buttonStop.setVisibility(View.VISIBLE);
+                    }
+                    if (bufferCode.equals("701")){
+                        Log.e(TAG, "onReceive: Buffer Completed 701");
+                        progress_play.setVisibility(View.GONE);
+                        buttonPlay.setVisibility(View.GONE);
+                        buttonStop.setVisibility(View.VISIBLE);
                     }
                     break;
                 case "streamingError":
@@ -287,46 +377,11 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                     Log.e(TAG, "onReceive: " + countError);
                     break;
                 case "getDataKajian":
-                    IDKAJIAN = intent.getStringExtra("idstreamingtitle");
-                    getInfoKajian();
+                    getTitleStreaming();
                     break;
             }
         }
     };
-
-    private void getInfoKajian() {
-        if (IDKAJIAN!=null){
-            List<String> list =new ArrayList<>();
-            list.add(IDKAJIAN);
-            HandlerServer handlerServer = new HandlerServer(Objects.requireNonNull(getActivity()).getApplicationContext(), PublicAddress.GET_INFO_KAJIAN);
-            synchronized (this){
-                handlerServer.sendDataToServer(new VolleyCallback() {
-                    @Override
-                    public void onFailed(String result) {
-                        Log.e(TAG, "onFailed: "+ result);
-                        judul_kajian.setVisibility(View.GONE);
-                        pemateri.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void onSuccess(JSONArray jsonArray) {
-                        JSONObject jsonObject;
-                        try {
-                            jsonObject = jsonArray.getJSONObject(0);
-                            String data_kajian = jsonObject.getString("kajian");
-                            String data_pemateri = jsonObject.getString("pemateri");
-                            judul_kajian.setText(data_kajian);
-                            pemateri.setText(data_pemateri);
-                            judul_kajian.setVisibility(View.VISIBLE);
-                            pemateri.setVisibility(View.VISIBLE);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, list);
-            }
-        }
-    }
 
     @Override
     public void onDestroy() {

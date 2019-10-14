@@ -69,17 +69,18 @@ public class EPCEEMService extends FirebaseMessagingService {
 //                Log.e(TAG, "sendPushNotification: Streaming: " + list);
                 sendBroadcast(intent);
             } else if (typeNotif.equals("broadcastKajianRadio")){
-                String title = data.getString("kajian");
-                String message = "Bersama " + data.getString("pemateri");
-                Intent intentdatakajian = new Intent("datakajian");
-                intentdatakajian.putExtra("title", title);
-                intentdatakajian.putExtra("message", message);
-                sendBroadcast(intentdatakajian);
-                showNotificationInfo(title, message);
+                    String title = data.getString("kajian");
+                    String message = "Bersama " + data.getString("pemateri");
+                    Intent intentdatakajian = new Intent("datakajian");
+                    intentdatakajian.putExtra("title", title);
+                    intentdatakajian.putExtra("message", message);
+                    sendBroadcast(intentdatakajian);
+                    showNotificationInfo(title, message);
 
-                Intent intent = new Intent("getDataKajian");
-                intent.putExtra("idstreamingtitle", data.getString("id"));
-                sendBroadcast(intent);
+                    Intent intent = new Intent("getDataKajian");
+                    intent.putExtra("idstreamingtitle", data.getString("id"));
+                    sendBroadcast(intent);
+
              }
         } catch (JSONException e) {
             e.printStackTrace();

@@ -236,10 +236,19 @@ implements ProfileFragment.ListenerProfile, StreamingFragment.ListenerStreaming 
     }
     @Override
     public void inputStreaming(CharSequence input) {
-        if (input.equals("nostreaming")){
-            infokanKeUser("Sumber streaming tidak ditemukan");
-        } else if (input.equals("streamingError")){
-            infokanKeUser("Streaming Terputus, silahkan ulangi kembali");
+        switch (input.toString()){
+            case "nostreaming":
+                infokanKeUser("Sumber streaming tidak ditemukan");
+                break;
+            case "streamingError":
+                infokanKeUser("Streaming Terputus, silahkan ulangi kembali");
+                break;
+            case "kajianberakhir":
+                infokanKeUser("Kajian Radio Streaming Telah Berakhir");
+                break;
+            case "chatgagal":
+                infokanKeUser("Gagal mengambil data Chat");
+                break;
         }
     }
     @Override
