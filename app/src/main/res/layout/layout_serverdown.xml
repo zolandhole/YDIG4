@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:id="@+id/rel_serverdown"
+    android:visibility="gone"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_marginTop="50dp"
+        android:id="@+id/judul_serverdown"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="18sp"
+        android:layout_marginStart="40dp"
+        android:text="@string/judul_serverdown"
+        android:fontFamily="@font/robotobold"
+        android:layout_marginEnd="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_marginEnd="10dp"
+        android:textStyle="bold"
+        android:layout_below="@+id/judul_serverdown"
+        android:textColor="@color/orangeTulisan"
+        android:layout_marginStart="40dp"
+        android:id="@+id/ket_serverdown"
+        android:fontFamily="@font/robotolight"
+        android:text="@string/title_streaming"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/ket_serverdown"
+        android:layout_marginStart="40dp"
+        android:id="@+id/title_serverdown"
+        android:fontFamily="@font/robotolight"
+        android:layout_centerVertical="true"
+        android:text="@string/ket_serverdown"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</RelativeLayout>

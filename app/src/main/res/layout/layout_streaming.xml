@@ -98,5 +98,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             layout="@layout/layout_chatting" />
+
+<!--        SERVER DOWN-->
+        <include
+            android:layout_below="@+id/relPlayer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            layout="@layout/layout_serverdown" />
+
+<!--        KATEGORI PERTANYAAN-->
+        <include
+            android:layout_marginBottom="55dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            layout="@layout/pertanyaan_layout" />
     </RelativeLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

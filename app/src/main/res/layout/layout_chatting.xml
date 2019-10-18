@@ -9,7 +9,32 @@
     android:weightSum="2"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/ll_nochat"
+            android:visibility="gone"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:layout_height="0dp">
+            <TextView
+                android:textStyle="bold"
+                android:fontFamily="@font/robotoregular"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:text="@string/nochat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:fontFamily="@font/robotothin"
+                android:textAlignment="center"
+                android:text="@string/ket_nochat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
+            android:visibility="invisible"
             android:layout_weight="2"
             android:id="@+id/streaming_recyclerview"
             android:layout_width="match_parent"

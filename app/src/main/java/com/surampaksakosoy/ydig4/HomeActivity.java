@@ -188,9 +188,6 @@ implements ProfileFragment.ListenerProfile, StreamingFragment.ListenerStreaming 
         for (Map<String,String> map : userDB){
             SUMBERLOGIN = map.get("sumber_login");
             IDLOGIN = map.get("id_login");
-//            NAMA = map.get("nama");
-//            EMAIL = map.get("email");
-//            VERSI = map.get("version");
         }
         return IDLOGIN;
     }

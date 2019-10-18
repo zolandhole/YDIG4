@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content" />
 
             <TextView
-                android:drawableStart="@drawable/ic_time"
+                android:drawableStart="@drawable/ic_globe"
                 android:fontFamily="@font/robotothin"
                 android:text="@string/jam"
                 android:textColor="@color/darkGrey"

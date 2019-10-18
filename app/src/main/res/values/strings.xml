@@ -31,4 +31,9 @@
     <string name="saran">Saran</string>
     <string name="tentang_kami">Tentang YDIG</string>
     <string name="profile">Profil</string>
+    <string name="ket_serverdown">Anda akan menerima notifikasi pada saat Radio Streaming on iar, klik notifikasi tersebut dan akan di arahkan ke halaman ini untuk mendengarkan kajian dan berinteraksi secara langsung dengan para nara sumber</string>
+    <string name="title_streaming">Saat Ini tidak ada Kajian On air Streaming</string>
+    <string name="judul_serverdown">YDIG…</string>
+    <string name="nochat">Jadilah yang pertama Berinteraksi</string>
+    <string name="ket_nochat">gunakan media interaksi chat dengan bijaksana</string>
 </resources>
