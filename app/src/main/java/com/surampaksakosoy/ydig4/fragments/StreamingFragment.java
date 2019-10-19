@@ -11,16 +11,21 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -31,6 +36,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.facebook.internal.ImageRequest;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.surampaksakosoy.ydig4.MainActivity;
 import com.surampaksakosoy.ydig4.R;
 import com.surampaksakosoy.ydig4.adapters.AdapterStreaming;
 import com.surampaksakosoy.ydig4.models.ModelStreaming;
@@ -44,7 +50,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,13 +65,13 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
 
     private static final String TAG = "StreamingFragment";
     private ListenerStreaming listener;
-    private Button buttonPlay, buttonStop, streaming_sendpesan;
-    private ProgressBar progress_play;
+    private Button buttonPlay, buttonStop, streaming_sendpesan, btn_pertanyaan, btn_komentar, btn_saran;
+    private ProgressBar progress_play, progressbar_send;
     private TextView judul_kajian, pemateri;
     private CircleImageView ustad_photo;
     private List<ModelStreaming> modelStreaming;
     private LinearLayoutManager linearLayoutManager;
-    private RelativeLayout rel_serverdown;
+    private RelativeLayout rel_serverdown, main_layout;
     private LinearLayout ll_serverup, ll_nochat, popup_sendbutton;
     private AdapterStreaming adapterStreaming;
     private RecyclerView streaming_recyclerview;
@@ -70,6 +79,8 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
     private DBHandler dbHandler;
     private String ID_LOGIN, SUMBER_LOGIN;
     private FirebaseAuth mAuth;
+    private EditText editTextPesan;
+    private CardView cv_pesanBaru;
 
     public interface ListenerStreaming{
         void inputStreaming(CharSequence input);
@@ -101,12 +112,16 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         super.onCreate(savedInstanceState);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.layout_streaming, container, false);
         buttonPlay = view.findViewById(R.id.buttonPlay); buttonPlay.setOnClickListener(this);
         buttonStop = view.findViewById(R.id.buttonStop); buttonStop.setOnClickListener(this);
+        btn_komentar = view.findViewById(R.id.btn_komentar); btn_komentar.setOnClickListener(this);
+        btn_pertanyaan = view.findViewById(R.id.btn_pertanyaan); btn_pertanyaan.setOnClickListener(this);
+        btn_saran = view.findViewById(R.id.btn_saran); btn_saran.setOnClickListener(this);
         progress_play = view.findViewById(R.id.progress_play);
         judul_kajian = view.findViewById(R.id.judul_kajian);
         pemateri = view.findViewById(R.id.pemateri);
@@ -120,7 +135,34 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         streaming_sendpesan = view.findViewById(R.id.streaming_sendpesan); streaming_sendpesan.setOnClickListener(this);
         ll_nochat = view.findViewById(R.id.ll_nochat);
         popup_sendbutton = view.findViewById(R.id.popup_sendbutton);
+        main_layout = view.findViewById(R.id.main_layout);
+        editTextPesan = view.findViewById(R.id.streaming_edittext);
+        progressbar_send = view.findViewById(R.id.progressbar_send);
+        cv_pesanBaru = view.findViewById(R.id.cv_pesan_baru); cv_pesanBaru.setOnClickListener(this);
+        main_layout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                hidePopupandKeyboard(v);
+                return false;
+            }
+        });
+        streaming_recyclerview.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                hidePopupandKeyboard(v);
+                return false;
+            }
+        });
         jalankanStreaming();
+        streaming_recyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (linearLayoutManager.findFirstVisibleItemPosition() == 0){
+                    cv_pesanBaru.setVisibility(View.GONE);
+                }
+            }
+        });
         return view;
     }
 
@@ -205,6 +247,19 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
             case R.id.streaming_sendpesan:
                 popup_sendbutton.setVisibility(View.VISIBLE);
                 break;
+            case R.id.btn_pertanyaan:
+                kirimPesan("1#");
+                break;
+            case R.id.btn_komentar:
+                kirimPesan("2#");
+                break;
+            case R.id.btn_saran:
+                kirimPesan("3#");
+                break;
+            case R.id.cv_pesan_baru:
+                linearLayoutManager.scrollToPosition(0);
+                cv_pesanBaru.setVisibility(View.GONE);
+                break;
         }
     }
 
@@ -284,6 +339,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         filter.addAction("lemot");
         filter.addAction("streamingError");
         filter.addAction("getDataKajian");
+        filter.addAction("PESANBARU");
         Objects.requireNonNull(getActivity()).registerReceiver(broadcastReceiver, filter);
     }
 
@@ -363,9 +419,38 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                     jalankanStreaming();
                     getTitleStreaming();
                     break;
+                case "PESANBARU":
+                    ArrayList<String> dataPesan = intent.getStringArrayListExtra("DATANOTIF");
+                    assert dataPesan != null;
+                    Log.e(TAG, "onReceive: "+ dataPesan);
+                    pesanBaruDatang(dataPesan);
+                    break;
             }
         }
     };
+
+    private void pesanBaruDatang(ArrayList<String> dataPesan) {
+        ModelStreaming item = (new ModelStreaming(
+                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5),dataPesan.get(6)
+        ));
+        int insertIndex = 0;
+        if (modelStreaming!= null){
+            modelStreaming.add(insertIndex, item);
+            adapterStreaming.notifyItemInserted(insertIndex);
+            int scrollPosition = linearLayoutManager.findFirstVisibleItemPosition();
+            if (scrollPosition == 0 || dataPesan.get(6).equals(ID_LOGIN)){
+                linearLayoutManager.scrollToPosition(0);
+                cv_pesanBaru.setVisibility(View.GONE);
+            } else {
+                cv_pesanBaru.setVisibility(View.VISIBLE);
+            }
+            progressbar_send.setVisibility(View.GONE);
+            streaming_sendpesan.setVisibility(View.VISIBLE);
+            editTextPesan.setEnabled(true);
+        } else {
+            loadingDataChatting();
+        }
+    }
 
     private void lanjutkankeChatting() {
 
@@ -470,6 +555,62 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
             streaming_recyclerview.setItemAnimator(new DefaultItemAnimator());
             ll_nochat.setVisibility(View.GONE);
             streaming_recyclerview.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void hidePopupandKeyboard(View v) {
+        InputMethodManager inputMethodManager = (InputMethodManager) Objects.requireNonNull(getActivity()).getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (inputMethodManager != null){
+            inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+        popup_sendbutton.setVisibility(View.GONE);
+    }
+
+    private void kirimPesan(String s) {
+        popup_sendbutton.setVisibility(View.GONE);
+        String pesan = editTextPesan.getText().toString();
+        if (!pesan.equals("")){
+            progressbar_send.setVisibility(View.VISIBLE);
+            streaming_sendpesan.setVisibility(View.GONE);
+            editTextPesan.setEnabled(false);
+            Date c = Calendar.getInstance().getTime();
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
+            String tanggal = df.format(c);
+            String waktu = tf.format(c);
+
+            List<String> list = new ArrayList<>();
+            if (s!=null){
+                list.add(s);
+            }
+            list.add(tanggal);
+            list.add(waktu);
+            list.add(ID_LOGIN);
+            list.add(pesan);
+            HandlerServer handlerServer = new HandlerServer(Objects.requireNonNull(getActivity()).getApplicationContext(), PublicAddress.SEND_COMMENT_DATA);
+            synchronized (this){
+                handlerServer.sendDataToServer(new VolleyCallback() {
+                    @Override
+                    public void onFailed(String result) {
+                        if (!result.contains("berhasil")){
+                            progressbar_send.setVisibility(View.GONE);
+                            streaming_sendpesan.setVisibility(View.VISIBLE);
+                            editTextPesan.setEnabled(true);
+                            Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Gagal Mengirim Pesan, Silahkan Coba lagi", Toast.LENGTH_SHORT).show();
+                        } else {
+                            progressbar_send.setVisibility(View.GONE);
+                            streaming_sendpesan.setVisibility(View.VISIBLE);
+                            editTextPesan.setText("");
+                            editTextPesan.setEnabled(true);
+                        }
+                    }
+
+                    @Override
+                    public void onSuccess(JSONArray jsonArray) {
+                        Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Pesan Terkirim", Toast.LENGTH_SHORT).show();
+                    }
+                }, list);
+            }
         }
     }
 

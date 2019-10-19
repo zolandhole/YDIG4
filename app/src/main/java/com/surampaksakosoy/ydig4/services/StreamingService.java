@@ -279,11 +279,14 @@ public class StreamingService extends Service implements
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         Log.e(TAG, "onBufferingUpdate: StreamingService" + mp + " percent: " + percent);
+        Intent intent = new Intent("lemot");
+        intent.putExtra("lemot", "703");
+        sendBroadcast(intent);
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        Log.e(TAG, "onBind: StreamingService" + mp);
+        Log.e(TAG, "onCompletion: StreamingService" + mp);
         stopMedia();
         stopSelf();
     }

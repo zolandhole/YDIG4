@@ -53,6 +53,7 @@ public class EPCEEMService extends FirebaseMessagingService {
     private void sendPushNotification(JSONObject jsonObject) {
         try {
             JSONObject data = jsonObject.getJSONObject("data");
+            JSONObject data2 = jsonObject.getJSONObject("data2");
 
             String typeNotif = data.getString("typeNotif");
             ArrayList<String> list = new ArrayList<>();
@@ -64,9 +65,9 @@ public class EPCEEMService extends FirebaseMessagingService {
                 list.add(data.getString("id_login"));
                 list.add(data.getString("photo"));
                 list.add(data.getString("uniq_id"));
+                list.add(data2.getString("type_pesan"));
                 Intent intent = new Intent("PESANBARU");
                 intent.putStringArrayListExtra("DATANOTIF", list);
-//                Log.e(TAG, "sendPushNotification: Streaming: " + list);
                 sendBroadcast(intent);
             } else if (typeNotif.equals("broadcastKajianRadio")){
                     String title = data.getString("kajian");
