@@ -232,11 +232,16 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.buttonPlay:
-                if (isMyServiceRunning()){
-                    new ServiceStreaming().execute();
+                if (buttonPlay.getText().toString().equals("Lanjutkan")){
+                    Objects.requireNonNull(getActivity()).getApplicationContext().sendBroadcast(new Intent("start"));
                 } else {
-                    Log.e(TAG, "onClick: service already Running");
+                    if (isMyServiceRunning()){
+                        new ServiceStreaming().execute();
+                    } else {
+                        Log.e(TAG, "onClick: service already Running");
+                    }
                 }
+
                 break;
             case R.id.buttonStop:
                 progress_play.setVisibility(View.VISIBLE);
@@ -343,6 +348,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         filter.addAction("getDataKajian");
         filter.addAction("PESANBARU");
         filter.addAction("errorsenddata");
+        filter.addAction("pausePlayer");
         Objects.requireNonNull(getActivity()).registerReceiver(broadcastReceiver, filter);
     }
 
@@ -361,6 +367,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                     buttonPlay.setVisibility(View.GONE);
                     break;
                 case "mediastoped":
+                    buttonPlay.setText(R.string.play);
                     buttonStop.setVisibility(View.GONE);
                     progress_play.setVisibility(View.GONE);
                     buttonPlay.setVisibility(View.VISIBLE);
@@ -432,6 +439,12 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                     editTextPesan.setEnabled(true);
                     progressbar_send.setVisibility(View.GONE);
                     streaming_sendpesan.setVisibility(View.VISIBLE);
+                    break;
+                case "pausePlayer":
+                    Log.e(TAG, "onReceive: Pause Media");
+                    buttonPlay.setText(R.string.lanjutkan);
+                    buttonStop.setVisibility(View.GONE);
+                    buttonPlay.setVisibility(View.VISIBLE);
                     break;
             }
         }

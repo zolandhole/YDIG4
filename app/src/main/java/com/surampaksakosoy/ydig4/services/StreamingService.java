@@ -255,8 +255,12 @@ public class StreamingService extends Service implements
     private void pauseMedia(){
         Log.e(TAG, "pauseMedia: ");
         if (mediaPlayer.isPlaying()){
-            mediaPlayer.pause();
-            broadcastStopMedia();
+            try{
+                mediaPlayer.pause();
+            } catch (IllegalStateException e){
+                Log.e(TAG, "pauseMedia: "+ e);
+            }
+           sendBroadcast(new Intent("pausePlayer"));
         }
     }
 
