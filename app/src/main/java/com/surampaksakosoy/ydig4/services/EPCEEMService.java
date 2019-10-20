@@ -53,11 +53,11 @@ public class EPCEEMService extends FirebaseMessagingService {
     private void sendPushNotification(JSONObject jsonObject) {
         try {
             JSONObject data = jsonObject.getJSONObject("data");
-            JSONObject data2 = jsonObject.getJSONObject("data2");
 
             String typeNotif = data.getString("typeNotif");
             ArrayList<String> list = new ArrayList<>();
             if (typeNotif.equals("streamingTanya")){
+                JSONObject data2 = jsonObject.getJSONObject("data2");
                 list.add(data.getString("id"));
                 list.add(data.getString("pesan"));
                 list.add(data.getString("tanggal"));

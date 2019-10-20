@@ -103,71 +103,71 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private LinearLayout ll_serverdown, ll_serverup, ll_popup_sendbutton;
     private RelativeLayout main_layout;
 
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String param = intent.getAction();
-            assert param != null;
-            switch (param){
-                case "mediaplayed":
-                    main_status_streaming.setVisibility(View.GONE);
-                    progress_play.setVisibility(View.GONE);
-                    buttonStop.setVisibility(View.VISIBLE);
-                    buttonPlay.setVisibility(View.GONE);
-                    break;
-                case "mediastoped":
-                    buttonStop.setVisibility(View.GONE);
-                    progress_play.setVisibility(View.GONE);
-                    buttonPlay.setVisibility(View.VISIBLE);
-                    break;
-                case "lemot":
-                    String bufferCode = intent.getStringExtra("lemot");
-                    assert bufferCode != null;
-                    if (bufferCode.equals("703")){
-                        Log.e(TAG, "onReceive: Sedang buffering");
-                        main_status_streaming.setText(R.string.koneksi_buruk);
-                        main_status_streaming.setBackgroundColor(getResources().getColor(R.color.merahmarun));
-                        main_status_streaming.setVisibility(View.VISIBLE);
-                    }
-                    if (bufferCode.equals("702")){
-                        Log.e(TAG, "onReceive: Buffer Completed");
-                        main_status_streaming.setVisibility(View.GONE);
-                    }
-                    break;
-                case "streamingError":
-                    countError = countError+1;
-                    if (countError <= 3){
-                        if (!isMyServiceRunning()){
-                            new MyTask().execute();
-                        }
-                    } else {
-                        infokanKeUser("Streaming Terputus, silahkan ulangi kembali");
-                        buttonPlay.setVisibility(View.VISIBLE);
-                        buttonStop.setVisibility(View.GONE);
-                        progress_play.setVisibility(View.GONE);
-                    }
-                    Log.e(TAG, "onReceive: " + countError);
-                    break;
-                case "PESANBARU":
-                    ArrayList<String> dataPesan = intent.getStringArrayListExtra("DATANOTIF");
-                    assert dataPesan != null;
-                    Log.e(TAG, "onReceive: "+ dataPesan);
-                    pesanBaruDatang(dataPesan);
-                    break;
-                case "errorsenddata":
-                    infokanKeUser("Gagal mengirim pesan silakan coba lagi");
-                    editTextPesan.setEnabled(true);
-                    progressbar_send.setVisibility(View.GONE);
-                    btn_send.setVisibility(View.VISIBLE);
-                    break;
-                case "datakajian":
-                    judul_kajian.setText(intent.getStringExtra("title"));
-                    judul_kajian.setVisibility(View.VISIBLE);
-                    break;
-            }
-
-        }
-    };
+//    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            String param = intent.getAction();
+//            assert param != null;
+//            switch (param){
+//                case "mediaplayed":
+//                    main_status_streaming.setVisibility(View.GONE);
+//                    progress_play.setVisibility(View.GONE);
+//                    buttonStop.setVisibility(View.VISIBLE);
+//                    buttonPlay.setVisibility(View.GONE);
+//                    break;
+//                case "mediastoped":
+//                    buttonStop.setVisibility(View.GONE);
+//                    progress_play.setVisibility(View.GONE);
+//                    buttonPlay.setVisibility(View.VISIBLE);
+//                    break;
+//                case "lemot":
+//                    String bufferCode = intent.getStringExtra("lemot");
+//                    assert bufferCode != null;
+//                    if (bufferCode.equals("703")){
+//                        Log.e(TAG, "onReceive: Sedang buffering");
+//                        main_status_streaming.setText(R.string.koneksi_buruk);
+//                        main_status_streaming.setBackgroundColor(getResources().getColor(R.color.merahmarun));
+//                        main_status_streaming.setVisibility(View.VISIBLE);
+//                    }
+//                    if (bufferCode.equals("702")){
+//                        Log.e(TAG, "onReceive: Buffer Completed");
+//                        main_status_streaming.setVisibility(View.GONE);
+//                    }
+//                    break;
+//                case "streamingError":
+//                    countError = countError+1;
+//                    if (countError <= 3){
+//                        if (!isMyServiceRunning()){
+//                            new MyTask().execute();
+//                        }
+//                    } else {
+//                        infokanKeUser("Streaming Terputus, silahkan ulangi kembali");
+//                        buttonPlay.setVisibility(View.VISIBLE);
+//                        buttonStop.setVisibility(View.GONE);
+//                        progress_play.setVisibility(View.GONE);
+//                    }
+//                    Log.e(TAG, "onReceive: " + countError);
+//                    break;
+//                case "PESANBARU":
+//                    ArrayList<String> dataPesan = intent.getStringArrayListExtra("DATANOTIF");
+//                    assert dataPesan != null;
+//                    Log.e(TAG, "onReceive: "+ dataPesan);
+////                    pesanBaruDatang(dataPesan);
+//                    break;
+//                case "errorsenddata":
+//                    infokanKeUser("Gagal mengirim pesan silakan coba lagi");
+//                    editTextPesan.setEnabled(true);
+//                    progressbar_send.setVisibility(View.GONE);
+//                    btn_send.setVisibility(View.VISIBLE);
+//                    break;
+//                case "datakajian":
+//                    judul_kajian.setText(intent.getStringExtra("title"));
+//                    judul_kajian.setVisibility(View.VISIBLE);
+//                    break;
+//            }
+//
+//        }
+//    };
 
 
     @Override
@@ -292,17 +292,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 
-    private void daftarkanBroadcast() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("mediaplayed");
-        filter.addAction("mediastoped");
-        filter.addAction("lemot");
-        filter.addAction("streamingError");
-        filter.addAction("PESANBARU");
-        filter.addAction("errorsenddata");
-        filter.addAction("datakajian");
-        registerReceiver(broadcastReceiver, filter);
-    }
+//    private void daftarkanBroadcast() {
+//        IntentFilter filter = new IntentFilter();
+//        filter.addAction("mediaplayed");
+//        filter.addAction("mediastoped");
+//        filter.addAction("lemot");
+//        filter.addAction("streamingError");
+//        filter.addAction("PESANBARU");
+//        filter.addAction("errorsenddata");
+//        filter.addAction("datakajian");
+//        registerReceiver(broadcastReceiver, filter);
+//    }
 
     private String cekApakahUserPernahLogin() {
         ArrayList<HashMap<String, String>> userDB = dbHandler.getUser(1);
@@ -381,48 +381,48 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void loadingDataChatting() {
-        List<String> list =new ArrayList<>();
-        list.add("0");
-        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.LOAD_COMMENT_DATA);
-        synchronized (this){
-            handlerServer.sendDataToServer(new VolleyCallback() {
-                @Override
-                public void onFailed(String result) {
-
-                    infokanKeUser("Gagal mengambil data Chat");
-                }
-
-                @Override
-                public void onSuccess(JSONArray jsonArray) {
-                    parsingDataChatting(jsonArray);
-                }
-            }, list);
-        }
-    }
-        private void parsingDataChatting(JSONArray jsonArray) {
-            List<ModelStreaming> list = new ArrayList<>();
-            JSONObject dataServer;
-            for (int i=0; i< jsonArray.length(); i++){
-                try {
-                    dataServer = jsonArray.getJSONObject(i);
-                    JSONObject isiData = dataServer.getJSONObject("data");
-                    list.add(new ModelStreaming(
-                            Integer.parseInt(dataServer.getString("id")),
-                            isiData.getString("pesan"),
-                            isiData.getString("tanggal"),
-                            isiData.getString("waktu"),
-                            isiData.getString("id_login"),
-                            isiData.getString("photo"),
-                            isiData.getString("uniq_id")
-                    ));
-                    tampilkanDataChatting(list);
-                } catch (JSONException e) {
-                    Log.e(TAG, "parsingDataChatting: exception: " + e);
-                    e.printStackTrace();
-                }
-            }
-        }
+//    private void loadingDataChatting() {
+//        List<String> list =new ArrayList<>();
+//        list.add("0");
+//        HandlerServer handlerServer = new HandlerServer(this, PublicAddress.LOAD_COMMENT_DATA);
+//        synchronized (this){
+//            handlerServer.sendDataToServer(new VolleyCallback() {
+//                @Override
+//                public void onFailed(String result) {
+//
+//                    infokanKeUser("Gagal mengambil data Chat");
+//                }
+//
+//                @Override
+//                public void onSuccess(JSONArray jsonArray) {
+//                    parsingDataChatting(jsonArray);
+//                }
+//            }, list);
+//        }
+//    }
+//        private void parsingDataChatting(JSONArray jsonArray) {
+//            List<ModelStreaming> list = new ArrayList<>();
+//            JSONObject dataServer;
+//            for (int i=0; i< jsonArray.length(); i++){
+//                try {
+//                    dataServer = jsonArray.getJSONObject(i);
+//                    JSONObject isiData = dataServer.getJSONObject("data");
+//                    list.add(new ModelStreaming(
+//                            Integer.parseInt(dataServer.getString("id")),
+//                            isiData.getString("pesan"),
+//                            isiData.getString("tanggal"),
+//                            isiData.getString("waktu"),
+//                            isiData.getString("id_login"),
+//                            isiData.getString("photo"),
+//                            isiData.getString("uniq_id")
+//                    ));
+//                    tampilkanDataChatting(list);
+//                } catch (JSONException e) {
+//                    Log.e(TAG, "parsingDataChatting: exception: " + e);
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
         private void tampilkanDataChatting(List<ModelStreaming> list) {
             this.modelStreaming = list;
             if (list.isEmpty()){
@@ -436,28 +436,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
     }
 
-    private void pesanBaruDatang(ArrayList<String> dataPesan) {
-        ModelStreaming item = (new ModelStreaming(
-                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5),dataPesan.get(6)
-        ));
-        int insertIndex = 0;
-        if (modelStreaming!= null){
-            modelStreaming.add(insertIndex, item);
-            adapterStreaming.notifyItemInserted(insertIndex);
-            int scrollPosition = linearLayoutManager.findFirstVisibleItemPosition();
-            if (scrollPosition == 0 || dataPesan.get(6).equals(ID_LOGIN)){
-                linearLayoutManager.scrollToPosition(0);
-                cv_pesanBaru.setVisibility(View.GONE);
-            } else {
-                cv_pesanBaru.setVisibility(View.VISIBLE);
-            }
-            progressbar_send.setVisibility(View.GONE);
-            btn_send.setVisibility(View.VISIBLE);
-            editTextPesan.setEnabled(true);
-        } else {
-            Log.e(TAG, "pesanBaruDatang: " + item);
-        }
-    }
+//    private void pesanBaruDatang(ArrayList<String> dataPesan) {
+//        ModelStreaming item = (new ModelStreaming(
+//                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5),dataPesan.get(6)
+//        ));
+//        int insertIndex = 0;
+//        if (modelStreaming!= null){
+//            modelStreaming.add(insertIndex, item);
+//            adapterStreaming.notifyItemInserted(insertIndex);
+//            int scrollPosition = linearLayoutManager.findFirstVisibleItemPosition();
+//            if (scrollPosition == 0 || dataPesan.get(6).equals(ID_LOGIN)){
+//                linearLayoutManager.scrollToPosition(0);
+//                cv_pesanBaru.setVisibility(View.GONE);
+//            } else {
+//                cv_pesanBaru.setVisibility(View.VISIBLE);
+//            }
+//            progressbar_send.setVisibility(View.GONE);
+//            btn_send.setVisibility(View.VISIBLE);
+//            editTextPesan.setEnabled(true);
+//        } else {
+//            Log.e(TAG, "pesanBaruDatang: " + item);
+//        }
+//    }
 
     @Override
     public void onClick(View v) {

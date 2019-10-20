@@ -8,7 +8,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
     <LinearLayout
         android:orientation="vertical"
         android:id="@+id/main_layout"
@@ -16,6 +15,7 @@
         android:layout_height="match_parent">
         <!--Toolbar-->
         <com.google.android.material.appbar.AppBarLayout
+            android:fitsSystemWindows = "true"
             android:background="@color/putih"
             android:id="@+id/bar_layout"
             android:layout_width="match_parent"
@@ -79,7 +79,8 @@
         <androidx.viewpager.widget.ViewPager
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/pagerAdapter" />
+            android:id="@+id/pagerAdapter"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
     </LinearLayout>
 
 

@@ -23,7 +23,7 @@
     <string name="jam"> jam</string>
     <string name="pesan">pesan</string>
     <string name="pesan_baru">Pesan Baru</string>
-    <string name="anda">anda</string>
+    <string name="anda">Anda</string>
     <string name="ket_streaming_failed">Saat ini tidak ada Live On Air Streaming Radio Dialog Islam Garuda di 105.5 FM.</string>
     <string name="mohon_maaf">Mohon Maaf</string>
     <string name="pertanyaan">Pertanyaan</string>
@@ -36,4 +36,5 @@
     <string name="judul_serverdown">YDIG…</string>
     <string name="nochat">Jadilah yang pertama Berinteraksi</string>
     <string name="ket_nochat">gunakan media interaksi chat dengan bijaksana</string>
+    <string name="type_pesan">type_pesan</string>
 </resources>

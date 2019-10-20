@@ -1,6 +1,7 @@
 package com.surampaksakosoy.ydig4.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,20 +39,31 @@ public class AdapterStreaming extends RecyclerView.Adapter<AdapterStreaming.Hold
     @Override
     public void onBindViewHolder(@NonNull AdapterStreaming.Holder holder, int position) {
         final ModelStreaming streaming = modelStreaming.get(position);
-        if (!streaming.getId_login().equals("non")){
-            if (ID_LOGIN.equals(streaming.getUniq_id())){
-                holder.textViewDari.setText(R.string.anda);
-
-            } else {
-                holder.textViewDari.setText(streaming.getId_login());
-            }
-            holder.textViewJam.setText(streaming.getJam());
-            holder.textViewPesan.setText(streaming.getPesan());
-            if (streaming.getPhoto() != null){
-                Glide.with(context).load(streaming.getPhoto()).placeholder(R.drawable.ic_account).into(holder.photo);
-            }
+        if (streaming.getType_pesan() == 1){
+            holder.layout_recycler.setBackground(context.getResources().getDrawable(R.drawable.back_biru));
+            holder.tv_type_pesan.setBackground(context.getResources().getDrawable(R.drawable.button_biru));
+            holder.tv_type_pesan.setText(R.string.pertanyaan);
+        } else if (streaming.getType_pesan() == 2){
+            holder.layout_recycler.setBackground(context.getResources().getDrawable(R.drawable.back_grey));
+            holder.tv_type_pesan.setBackground(context.getResources().getDrawable(R.drawable.button_abu));
+            holder.tv_type_pesan.setText(R.string.komentar);
+        } else if (streaming.getType_pesan() == 3){
+            holder.layout_recycler.setBackground(context.getResources().getDrawable(R.drawable.back_orange));
+            holder.tv_type_pesan.setBackground(context.getResources().getDrawable(R.drawable.button_orange));
+            holder.tv_type_pesan.setText(R.string.saran);
         } else {
-            holder.layout_recycler.setVisibility(View.GONE);
+            holder.layout_recycler.setBackground(context.getResources().getDrawable(R.drawable.back_putih));
+            holder.tv_type_pesan.setVisibility(View.GONE);
+        }
+        if (ID_LOGIN.equals(streaming.getUniq_id())){
+            holder.textViewDari.setText(R.string.anda);
+        } else {
+            holder.textViewDari.setText(streaming.getId_login());
+        }
+        holder.textViewJam.setText(streaming.getJam());
+        holder.textViewPesan.setText(streaming.getPesan());
+        if (streaming.getPhoto() != null){
+            Glide.with(context).load(streaming.getPhoto()).placeholder(R.drawable.ic_account).into(holder.photo);
         }
     }
 
@@ -62,7 +74,7 @@ public class AdapterStreaming extends RecyclerView.Adapter<AdapterStreaming.Hold
 
     class Holder extends RecyclerView.ViewHolder{
 
-        TextView textViewDari, textViewJam, textViewPesan;
+        TextView textViewDari, textViewJam, textViewPesan, tv_type_pesan;
         de.hdodenhof.circleimageview.CircleImageView photo;
         LinearLayout layout_recycler;
 
@@ -72,6 +84,7 @@ public class AdapterStreaming extends RecyclerView.Adapter<AdapterStreaming.Hold
             textViewDari = itemView.findViewById(R.id.streaming_dari);
             textViewJam = itemView.findViewById(R.id.streaming_jam);
             textViewPesan = itemView.findViewById(R.id.streaming_pesan);
+            tv_type_pesan = itemView.findViewById(R.id.tv_type_pesan);
             photo = itemView.findViewById(R.id.streaming_photo);
         }
     }

@@ -139,6 +139,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         editTextPesan = view.findViewById(R.id.streaming_edittext);
         progressbar_send = view.findViewById(R.id.progressbar_send);
         cv_pesanBaru = view.findViewById(R.id.cv_pesan_baru); cv_pesanBaru.setOnClickListener(this);
+        daftarkanBroadcast();
         main_layout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -181,7 +182,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
     @Override
     public void onResume() {
         super.onResume();
-        daftarkanBroadcast();
+
         if (judul_kajian.getText().equals("")){
             getTitleStreaming();
         }
@@ -225,7 +226,6 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
     @Override
     public void onPause() {
         super.onPause();
-        Objects.requireNonNull(getActivity()).unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -340,6 +340,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         filter.addAction("streamingError");
         filter.addAction("getDataKajian");
         filter.addAction("PESANBARU");
+        filter.addAction("errorsenddata");
         Objects.requireNonNull(getActivity()).registerReceiver(broadcastReceiver, filter);
     }
 
@@ -422,8 +423,13 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                 case "PESANBARU":
                     ArrayList<String> dataPesan = intent.getStringArrayListExtra("DATANOTIF");
                     assert dataPesan != null;
-                    Log.e(TAG, "onReceive: "+ dataPesan);
                     pesanBaruDatang(dataPesan);
+                    break;
+                case "errorsenddata":
+                    editTextPesan.setText("");
+                    editTextPesan.setEnabled(true);
+                    progressbar_send.setVisibility(View.GONE);
+                    streaming_sendpesan.setVisibility(View.VISIBLE);
                     break;
             }
         }
@@ -431,7 +437,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
 
     private void pesanBaruDatang(ArrayList<String> dataPesan) {
         ModelStreaming item = (new ModelStreaming(
-                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5),dataPesan.get(6)
+                Integer.parseInt(dataPesan.get(0)),dataPesan.get(1),dataPesan.get(2),dataPesan.get(3),dataPesan.get(4),dataPesan.get(5),dataPesan.get(6),Integer.parseInt(dataPesan.get(7))
         ));
         int insertIndex = 0;
         if (modelStreaming!= null){
@@ -532,7 +538,8 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                         isiData.getString("waktu"),
                         isiData.getString("id_login"),
                         isiData.getString("photo"),
-                        isiData.getString("uniq_id")
+                        isiData.getString("uniq_id"),
+                        Integer.parseInt(dataServer.getString("type_pesan"))
                 ));
                 tampilkanDataChatting(list);
             } catch (JSONException e) {
@@ -547,7 +554,6 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         if (list.isEmpty()){
             Log.e(TAG, "tampilkanDataChatting: " + list.size());
         } else {
-            Log.e(TAG, "tampilkanDataChatting: " + list.size());
             linearLayoutManager = new LinearLayoutManager(Objects.requireNonNull(getActivity()).getApplicationContext());
             adapterStreaming =new AdapterStreaming(modelStreaming, getActivity().getApplicationContext(), ID_LOGIN);
             streaming_recyclerview.setAdapter(adapterStreaming);
@@ -617,6 +623,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Objects.requireNonNull(getActivity()).unregisterReceiver(broadcastReceiver);
         judul_kajian.setText("");
         judul_kajian.setVisibility(View.GONE);
     }

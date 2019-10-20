@@ -244,7 +244,7 @@ public class StreamingService extends Service implements
                 Log.e(TAG, "stopMedia: STOP");
                 broadcastStopMedia();
             }
-            mediaPlayer.release();
+            mediaPlayer.reset();
         } else {
             Log.e(TAG, "stopMedia: ELSE");
         }
