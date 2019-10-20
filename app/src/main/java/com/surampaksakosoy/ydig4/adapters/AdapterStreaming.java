@@ -1,7 +1,6 @@
 package com.surampaksakosoy.ydig4.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,18 +36,18 @@ public class AdapterStreaming extends RecyclerView.Adapter<AdapterStreaming.Hold
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AdapterStreaming.Holder holder, int position) {
+    public void onBindViewHolder(@NonNull final AdapterStreaming.Holder holder, int position) {
         final ModelStreaming streaming = modelStreaming.get(position);
         if (streaming.getType_pesan() == 1){
-            holder.layout_recycler.setBackground(context.getResources().getDrawable(R.drawable.back_biru));
+//            holder.layout_recycler.setBackground(context.getResources().getDrawable(R.drawable.back_biru));
             holder.tv_type_pesan.setBackground(context.getResources().getDrawable(R.drawable.button_biru));
             holder.tv_type_pesan.setText(R.string.pertanyaan);
         } else if (streaming.getType_pesan() == 2){
-            holder.layout_recycler.setBackground(context.getResources().getDrawable(R.drawable.back_grey));
+//            holder.layout_recycler.setBackground(context.getResources().getDrawable(R.drawable.back_grey));
             holder.tv_type_pesan.setBackground(context.getResources().getDrawable(R.drawable.button_abu));
             holder.tv_type_pesan.setText(R.string.komentar);
         } else if (streaming.getType_pesan() == 3){
-            holder.layout_recycler.setBackground(context.getResources().getDrawable(R.drawable.back_orange));
+//            holder.layout_recycler.setBackground(context.getResources().getDrawable(R.drawable.back_orange));
             holder.tv_type_pesan.setBackground(context.getResources().getDrawable(R.drawable.button_orange));
             holder.tv_type_pesan.setText(R.string.saran);
         } else {

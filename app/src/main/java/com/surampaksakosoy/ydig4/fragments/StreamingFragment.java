@@ -245,7 +245,9 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                 Objects.requireNonNull(getActivity()).sendBroadcast(intent);
                 break;
             case R.id.streaming_sendpesan:
-                popup_sendbutton.setVisibility(View.VISIBLE);
+                if (editTextPesan.length() != 0){
+                    popup_sendbutton.setVisibility(View.VISIBLE);
+                }
                 break;
             case R.id.btn_pertanyaan:
                 kirimPesan("1#");
