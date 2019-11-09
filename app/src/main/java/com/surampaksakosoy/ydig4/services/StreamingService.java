@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.surampaksakosoy.ydig4.HomeActivity;
 import com.surampaksakosoy.ydig4.MainActivity;
 import com.surampaksakosoy.ydig4.R;
 import com.surampaksakosoy.ydig4.util.MyReceiver;
@@ -133,7 +134,7 @@ public class StreamingService extends Service implements
     }
 
     private void showNotification(String nama) {
-        Intent intentNotification = new Intent(this, MainActivity.class);
+        Intent intentNotification = new Intent(this, HomeActivity.class);
         intentNotification.putExtra("streamingRadio", "streamingRadio");
         intentNotification.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntentOpenApp = PendingIntent.getActivity(this, 0, intentNotification, PendingIntent.FLAG_UPDATE_CURRENT);

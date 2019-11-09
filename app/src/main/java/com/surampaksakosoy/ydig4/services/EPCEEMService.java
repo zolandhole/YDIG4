@@ -14,6 +14,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.surampaksakosoy.ydig4.R;
 import com.surampaksakosoy.ydig4.util.NotificationReceiver;
+import com.surampaksakosoy.ydig4.util.PublicAddress;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,15 +73,17 @@ public class EPCEEMService extends FirebaseMessagingService {
             } else if (typeNotif.equals("broadcastKajianRadio")){
                     String title = data.getString("kajian");
                     String message = "Bersama " + data.getString("pemateri");
+                    String photo = PublicAddress.BASEURLPHOTOASATID + data.getString("photo");
                     Intent intentdatakajian = new Intent("datakajian");
                     intentdatakajian.putExtra("title", title);
                     intentdatakajian.putExtra("message", message);
+                    intentdatakajian.putExtra("photoasatid", photo);
                     sendBroadcast(intentdatakajian);
                     showNotificationInfo(title, message);
 
-                    Intent intent = new Intent("getDataKajian");
-                    intent.putExtra("idstreamingtitle", data.getString("id"));
-                    sendBroadcast(intent);
+//                    Intent intent = new Intent("getDataKajian");
+//                    intent.putExtra("idstreamingtitle", data.getString("id"));
+//                    sendBroadcast(intent);
 
              }
         } catch (JSONException e) {

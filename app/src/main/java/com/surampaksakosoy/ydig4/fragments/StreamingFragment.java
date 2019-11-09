@@ -174,8 +174,6 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
             buttonPlay.setVisibility(View.GONE);
             buttonStop.setVisibility(View.VISIBLE);
             progress_play.setVisibility(View.GONE);
-            rel_serverdown.setVisibility(View.VISIBLE);
-            ll_serverup.setVisibility(View.GONE);
         }
     }
 
@@ -210,11 +208,23 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                         jsonObject = jsonArray.getJSONObject(0);
                         String data_kajian = jsonObject.getString("kajian");
                         String data_pemateri = jsonObject.getString("pemateri");
+                        String data_photo = jsonObject.getString("photo");
                         judul_kajian.setText(data_kajian);
                         pemateri.setText(data_pemateri);
                         judul_kajian.setVisibility(View.VISIBLE);
                         pemateri.setVisibility(View.VISIBLE);
-                        ustad_photo.setVisibility(View.VISIBLE);
+                        if (!data_photo.equals("")){
+                            Glide.with(Objects.requireNonNull(getActivity())
+                                    .getApplicationContext()).load(PublicAddress.BASEURLPHOTOASATID+data_photo)
+                                    .placeholder(R.drawable.ic_account)
+                                    .into(ustad_photo);
+                            ustad_photo.setVisibility(View.VISIBLE);
+                        } else {
+                            ustad_photo.setVisibility(View.GONE);
+                        }
+                        streaming_recyclerview.setVisibility(View.VISIBLE);
+                        rel_serverdown.setVisibility(View.GONE);
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -345,7 +355,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         filter.addAction("mediastoped");
         filter.addAction("lemot");
         filter.addAction("streamingError");
-        filter.addAction("getDataKajian");
+        filter.addAction("datakajian");
         filter.addAction("PESANBARU");
         filter.addAction("errorsenddata");
         filter.addAction("pausePlayer");
@@ -425,7 +435,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
                     }
                     Log.e(TAG, "onReceive: " + countError);
                     break;
-                case "getDataKajian":
+                case "datakajian":
                     jalankanStreaming();
                     getTitleStreaming();
                     break;
