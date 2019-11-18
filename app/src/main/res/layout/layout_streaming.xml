@@ -21,7 +21,7 @@
             android:layout_marginTop="10dp"
             android:id="@+id/judul_kajian"
             android:textSize="16sp"
-            android:fontFamily="@font/robotoregular"
+            android:fontFamily="@font/robotobold"
             android:textAlignment="textStart"
             android:visibility="gone"
             android:layout_width="match_parent"
@@ -39,7 +39,6 @@
         <Button
             android:visibility="gone"
             android:id="@+id/buttonStop"
-            android:layout_marginTop="10dp"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:layout_marginBottom="10dp"
@@ -54,8 +53,7 @@
 
         <Button
             android:id="@+id/buttonPlay"
-            android:visibility="visible"
-            android:layout_marginTop="10dp"
+            android:visibility="gone"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:layout_marginBottom="10dp"
@@ -72,7 +70,7 @@
             android:visibility="gone"
             android:layout_marginBottom="19dp"
             android:id="@+id/progress_play"
-            android:layout_marginTop="23dp"
+            android:layout_marginTop="12dp"
             android:layout_centerHorizontal="true"
             android:layout_below="@+id/pemateri"
             android:layout_width="25dp"

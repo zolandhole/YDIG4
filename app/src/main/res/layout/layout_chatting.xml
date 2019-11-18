@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:visibility="gone"
+    android:visibility="visible"
     android:id="@+id/ll_serverup"
     android:layout_below="@+id/bar_layout"
     android:orientation="vertical"
