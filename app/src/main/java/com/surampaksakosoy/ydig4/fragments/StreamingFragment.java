@@ -513,6 +513,7 @@ public class StreamingFragment extends Fragment implements View.OnClickListener 
         final Uri photo;
         int dimensionPixelSize = getResources()
                 .getDimensionPixelSize(com.facebook.R.dimen.com_facebook_profilepictureview_preset_size_large);
+
         if (SUMBER_LOGIN.equals("FACEBOOK")) {
             photo = ImageRequest.getProfilePictureUri(ID_LOGIN, dimensionPixelSize, dimensionPixelSize);
         } else {

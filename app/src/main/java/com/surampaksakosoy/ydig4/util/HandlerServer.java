@@ -68,7 +68,7 @@ public class HandlerServer {
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("params", String.valueOf(list));
-                Log.e(TAG, "getParams: " + list);
+                Log.e(TAG, "surampak: " + list);
                 return params;
             }
         };
